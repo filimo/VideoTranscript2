@@ -1,0 +1,150 @@
+
+//
+//  NavigationButtons.swift
+//  VideoTranscript2
+//
+//  Created by Viktor Kushnerov on 22.07.23.
+//
+
+import AVKit
+import Combine
+import Foundation
+
+class SubtitleViewModel: ObservableObject {
+    @Storage("originalSubtitles") var originalSubtitles: [Subtitle] = []
+    @Storage("translatedSubtitles") var translatedSubtitles: [Subtitle] = []
+
+    @Published var activeId: Int = 0 {
+        didSet {
+            print("activeId didSet", activeId)
+            debounceActiveIdSubject.send(activeId)
+        }
+    }
+
+    private var debounceActiveIdSubject = PassthroughSubject<Int, Never>()
+    var debounceActiveId: some Publisher<Int, Never> {
+        debounceActiveIdSubject
+            //            .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    @Published var isLoadingOriginal = false
+    @Published var isLoadingTranslated = false
+
+    @Storage("videoURLBookmark") private var videoURLBookmark: Data? = nil
+    var videoURL: URL? {
+        get {
+            guard let bookmarkData = videoURLBookmark else { return nil }
+            var isStale = false
+            let url = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &isStale)
+            if isStale {
+                // Handle stale bookmark here
+                print("The bookmark is stale.")
+                videoURLBookmark = nil
+            }
+
+            return url
+        }
+        set {
+            if let url = newValue {
+                do {
+                    setPlayer(videoURL: url)
+                    let bookmarkData = try url.bookmarkData()
+                    videoURLBookmark = bookmarkData
+                } catch {
+                    print("Failed to create bookmark for \(url): \(error)")
+                    videoURLBookmark = nil
+                }
+            } else {
+                videoURLBookmark = nil
+            }
+        }
+    }
+
+    @Published var player: AVPlayer? = nil
+    @Published var timeObserverToken: Any? = nil
+    @Published var isPlaying = false {
+        didSet {
+            if isPlaying {
+                player?.play()
+            } else {
+                player?.pause()
+            }
+        }
+    }
+
+    @Storage("currentTime") var currentTime: Double = 0
+}
+
+extension SubtitleViewModel {
+    func setPlayer(videoURL: URL?) {
+        if let urlAsset = player?.currentItem?.asset as? AVURLAsset {
+            let url = urlAsset.url
+            if videoURL == url { return }
+        }
+
+        if let videoURL {
+            // Remove the old time observer
+            if let player = player, let timeObserverToken = timeObserverToken {
+                player.removeTimeObserver(timeObserverToken)
+            }
+
+            player = AVPlayer(url: videoURL)
+            let interval = CMTime(value: 1, timescale: 10) // every tenth of a second, say
+            if let player {
+                timeObserverToken = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { _ in
+                    let currentTime = CMTimeGetSeconds(player.currentTime())
+                    self.currentTime = currentTime
+                    if let subtitle = self.originalSubtitles.first(where: { $0.startTime ... $0.endTime ~= currentTime }) {
+                        if self.activeId != subtitle.id {
+                            print("Changed activeId", currentTime, subtitle)
+                            self.activeId = subtitle.id
+                        }
+                    }
+                }
+
+                // Seek to the saved currentTime value
+                player.seek(to: CMTime(seconds: currentTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+            }
+        }
+    }
+
+    func seek(startTime: TimeInterval) {
+        player?.seek(to: CMTime(seconds: Double(startTime + 0.01), preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+    }
+
+    func prevSubtitle() {
+        if activeId > 0 {
+            activeId -= 1
+            if let subtitle = originalSubtitles.first(where: { $0.id == activeId }) {
+                seek(startTime: subtitle.startTime)
+            }
+        }
+    }
+
+    func nextSubtitle() {
+        if activeId < originalSubtitles.count - 1 {
+            activeId += 1
+            if let subtitle = originalSubtitles.first(where: { $0.id == activeId }) {
+                seek(startTime: subtitle.startTime)
+            }
+        }
+    }
+
+    func repeatSubtitle() {
+        guard let subtitle = originalSubtitles.first(where: { $0.id == activeId }) else { return }
+
+        // Seek to the start time of the subtitle and start playing
+        seek(startTime: subtitle.startTime)
+        isPlaying = true
+
+        // Calculate the duration of the subtitle
+        let duration = subtitle.endTime - subtitle.startTime
+
+        // Set a timer to stop the player after the subtitle has finished
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+            self.isPlaying = false
+        }
+    }
+}
