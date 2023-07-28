@@ -7,12 +7,12 @@
 
 import AVKit
 import SwiftUI
-import UniformTypeIdentifiers
 
 struct SubtitlesView: View {
     @ObservedObject var viewModel: SubtitleViewModel
     @Binding var subtitles: [Subtitle]
     var title: String
+    @State private var lastUpdate = Date()
 
     var body: some View {
         ScrollViewReader { scrollProxy in
@@ -28,15 +28,14 @@ struct SubtitlesView: View {
                             viewModel.activeId = subtitle.id
                         }
                 }
+                .id(lastUpdate)
                 Button("Load \(title) SRT") {
-                    openFile(allowedContentTypes: [UTType(filenameExtension: "srt")!]) { url in
-                        Task {
-                            do {
-                                let newSubtitles = try await loadSRT(from: url)
-                                subtitles = newSubtitles
-                            } catch {
-                                print("Failed to load SRT: \(error)")
-                            }
+                    Task {
+                        if let url = await openFile(allowedContentTypes: [UTType.STR]) {
+                            subtitles = try await loadSRT(from: url)
+                            lastUpdate = Date()
+                        } else {
+                            print("User cancelled file opening")
                         }
                     }
                 }

@@ -14,8 +14,10 @@ struct LoadVideoButton: View {
 
     var body: some View {
         Button("Load Video") {
-            openFile(allowedContentTypes: [UTType.movie, .mp3]) { url in
-                viewModel.videoURL = url                
+            Task {
+                if let url = await openFile(allowedContentTypes: [UTType.movie, .mp3]) {
+                    viewModel.videoURL = url
+                }
             }
         }
     }

@@ -6,17 +6,19 @@
 //  Created by Viktor Kushnerov on 22.07.23.
 //
 
-import Foundation
 import AppKit
+import Foundation
 import UniformTypeIdentifiers
 
-func openFile(allowedContentTypes: [UTType], completion: @escaping (URL) -> Void) {
+@MainActor
+func openFile(allowedContentTypes: [UTType]) async -> URL? {
     let panel = NSOpenPanel()
     panel.allowedContentTypes = allowedContentTypes
-    panel.begin { result in
-        if result == .OK, let url = panel.url {
-            completion(url)
-        }
+    let result = await panel.begin()
+    if result == .OK, let url = panel.url {
+        return url
+    } else {
+        return nil
     }
 }
 
