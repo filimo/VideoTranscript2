@@ -16,17 +16,18 @@ struct ContentView: View {
         VStack {
             playerView
 
+            Text(viewModel.getCurrentOriginalSubtitle())
+                .font(.title3)
+                
+            Text(viewModel.getCurrentTranlatatedSubtitle())
+                .font(.title3)
+
             HStack {
                 LoadVideoButton(viewModel: viewModel)
 
                 PlayPauseButton(viewModel: viewModel)
 
                 NavigationButtons(viewModel: viewModel)
-
-                Button(action: viewModel.repeatSubtitle) {
-                    Text("Repeat")
-                }
-                .keyboardShortcut(.return, modifiers: [])
 
                 Slider(value: $playbackSpeed, in: 0.5 ... 2.0, step: 0.1) {
                     Text("Speed \(playbackSpeed, specifier: "%.1f")")
@@ -52,7 +53,7 @@ struct ContentView: View {
         Group {
             if let player = viewModel.player {
                 VideoPlayer(player: player)
-                    .frame(height: 200)
+//                    .frame(height: 200)
             } else {
                 // Provide a placeholder when there's no video loaded
                 Rectangle()

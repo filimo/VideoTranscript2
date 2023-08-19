@@ -96,7 +96,13 @@ extension SubtitleViewModel {
                 timeObserverToken = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { _ in
                     let currentTime = CMTimeGetSeconds(player.currentTime())
                     self.currentTime = currentTime
-                    if let subtitle = self.originalSubtitles.first(where: { $0.startTime ... $0.endTime ~= currentTime }) {
+                    if let subtitle = self.originalSubtitles.first(where: {
+                        if $0.startTime < $0.endTime {
+                            return $0.startTime ... $0.endTime ~= currentTime
+                        }else{
+                            return false
+                        }
+                    }) {
                         if self.activeId != subtitle.id {
                             print("Changed activeId", currentTime, subtitle)
                             self.activeId = subtitle.id
@@ -111,7 +117,8 @@ extension SubtitleViewModel {
     }
 
     func seek(startTime: TimeInterval) {
-        player?.seek(to: CMTime(seconds: Double(startTime + 0.01), preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+        print("seek", startTime)
+        player?.seek(to: CMTime(seconds: Double(startTime + 0.1), preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
     }
 
     func prevSubtitle() {
@@ -130,6 +137,19 @@ extension SubtitleViewModel {
                 seek(startTime: subtitle.startTime)
             }
         }
+    }
+    
+    func getCurrentOriginalSubtitle() -> String {
+        originalSubtitles.first(where: { $0.id == activeId })?.text ?? ""
+    }
+
+    func getCurrentTranlatatedSubtitle() -> String {
+        translatedSubtitles.first(where: { $0.id == activeId })?.text ?? ""
+    }
+
+    func nextSubtitleAndPlay() {
+        nextSubtitle()
+        repeatSubtitle()
     }
 
     func repeatSubtitle() {

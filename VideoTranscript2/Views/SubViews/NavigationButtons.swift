@@ -21,6 +21,16 @@ struct NavigationButtons: View {
                 Text("Next")
             }
             .keyboardShortcut(.rightArrow, modifiers: [])
+
+            Button(action: viewModel.nextSubtitleAndPlay) {
+                Text("Next&Play")
+            }
+            .keyboardShortcut(.space, modifiers: [])
+
+            Button(action: viewModel.repeatSubtitle) {
+                Text("Repeat")
+            }
+            .keyboardShortcut(.return, modifiers: [])
         }
     }
 }
