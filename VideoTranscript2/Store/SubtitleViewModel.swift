@@ -11,8 +11,27 @@ import Combine
 import Foundation
 
 class SubtitleViewModel: ObservableObject {
-    @Storage("originalSubtitles") var originalSubtitles: [Subtitle] = []
-    @Storage("translatedSubtitles") var translatedSubtitles: [Subtitle] = []
+    @Storage("originalSubtitles") var originalSubtitles: [Subtitle] = [] {
+        willSet {
+            updateSubtitles2()
+            objectWillChange.send()
+        }
+    }
+
+    @Storage("translatedSubtitles") var translatedSubtitles: [Subtitle] = [] {
+        willSet {
+            updateSubtitles2()
+            objectWillChange.send()
+        }
+    }
+
+    @Storage("showTwoSubtitlesColumns") var showTwoSubtitlesColumns = true {
+        willSet {
+            objectWillChange.send()
+        }
+    }
+
+    var subtitles2: [Subtitle] = []
 
     @Published var activeId: Int = 0 {
         didSet {
@@ -24,7 +43,7 @@ class SubtitleViewModel: ObservableObject {
     private var debounceActiveIdSubject = PassthroughSubject<Int, Never>()
     var debounceActiveId: some Publisher<Int, Never> {
         debounceActiveIdSubject
-            //            .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
+//            .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
@@ -66,6 +85,7 @@ class SubtitleViewModel: ObservableObject {
     @Published var timeObserverToken: Any? = nil
     @Published var isPlaying = false {
         didSet {
+            print("isPlaying", isPlaying)
             if isPlaying {
                 player?.play()
             } else {
@@ -78,6 +98,21 @@ class SubtitleViewModel: ObservableObject {
 }
 
 extension SubtitleViewModel {
+    func updateSubtitles2() {
+        subtitles2 = originalSubtitles.map { item in
+            if let text = translatedSubtitles.first(where: { $0.id == item.id })?.text {
+                return Subtitle(
+                    id: item.id,
+                    startTime: item.startTime,
+                    endTime: item.endTime,
+                    text: item.text + "\n    \(text)"
+                )
+            }
+
+            return item
+        }
+    }
+    
     func setPlayer(videoURL: URL?) {
         if let urlAsset = player?.currentItem?.asset as? AVURLAsset {
             let url = urlAsset.url
@@ -91,7 +126,8 @@ extension SubtitleViewModel {
             }
 
             player = AVPlayer(url: videoURL)
-            let interval = CMTime(value: 1, timescale: 10) // every tenth of a second, say
+            
+            let interval = CMTime(value: 1, timescale: 2) // every tenth of a second, say
             if let player {
                 timeObserverToken = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { _ in
                     let currentTime = CMTimeGetSeconds(player.currentTime())
@@ -99,7 +135,7 @@ extension SubtitleViewModel {
                     if let subtitle = self.originalSubtitles.first(where: {
                         if $0.startTime < $0.endTime {
                             return $0.startTime ... $0.endTime ~= currentTime
-                        }else{
+                        } else {
                             return false
                         }
                     }) {
@@ -138,7 +174,7 @@ extension SubtitleViewModel {
             }
         }
     }
-    
+
     func getCurrentOriginalSubtitle() -> String {
         originalSubtitles.first(where: { $0.id == activeId })?.text ?? ""
     }
@@ -156,11 +192,12 @@ extension SubtitleViewModel {
         guard let subtitle = originalSubtitles.first(where: { $0.id == activeId }) else { return }
 
         // Seek to the start time of the subtitle and start playing
-        seek(startTime: subtitle.startTime)
-        isPlaying = true
-
+        let startTime = subtitle.startTime - 0.4
         // Calculate the duration of the subtitle
-        let duration = subtitle.endTime - subtitle.startTime
+        let duration = subtitle.endTime - startTime
+
+        seek(startTime: startTime)
+        isPlaying = true
 
         // Set a timer to stop the player after the subtitle has finished
         DispatchQueue.main.asyncAfter(deadline: .now() + duration) {

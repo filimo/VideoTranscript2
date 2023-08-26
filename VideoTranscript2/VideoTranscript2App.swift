@@ -15,6 +15,9 @@ struct VideoTranscript2App: App {
         WindowGroup {
             ContentView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                .onAppear{
+                    print(Bundle.main.bundlePath)
+                }
         }
     }
 }

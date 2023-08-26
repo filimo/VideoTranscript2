@@ -10,9 +10,7 @@ import SwiftUI
 
 struct SubtitlesView: View {
     @ObservedObject var viewModel: SubtitleViewModel
-    @Binding var subtitles: [Subtitle]
-    var title: String
-    @State private var lastUpdate = Date()
+    var subtitles: [Subtitle]
 
     var body: some View {
         ScrollViewReader { scrollProxy in
@@ -27,17 +25,6 @@ struct SubtitlesView: View {
                             viewModel.seek(startTime: subtitle.startTime)
                             viewModel.activeId = subtitle.id
                         }
-                }
-                .id(lastUpdate)
-                Button("Load \(title) SRT") {
-                    Task {
-                        if let url = await openFile(allowedContentTypes: [UTType.STR]) {
-                            subtitles = try await loadSRT(from: url)
-                            lastUpdate = Date()
-                        } else {
-                            print("User cancelled file opening")
-                        }
-                    }
                 }
             }
             .onReceive(viewModel.debounceActiveId) { id in

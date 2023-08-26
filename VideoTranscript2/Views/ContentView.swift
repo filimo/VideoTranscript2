@@ -18,12 +18,17 @@ struct ContentView: View {
 
             Text(viewModel.getCurrentOriginalSubtitle())
                 .font(.title3)
-                
+                .textSelection(.enabled)
+
             Text(viewModel.getCurrentTranlatatedSubtitle())
                 .font(.title3)
+                .textSelection(.enabled)
 
             HStack {
                 LoadVideoButton(viewModel: viewModel)
+
+                Divider()
+                    .fixedSize()
 
                 PlayPauseButton(viewModel: viewModel)
 
@@ -35,9 +40,16 @@ struct ContentView: View {
                 .frame(maxWidth: 200)
             }
             HStack {
-                SubtitlesView(viewModel: viewModel, subtitles: $viewModel.originalSubtitles, title: "Original")
-                SubtitlesView(viewModel: viewModel, subtitles: $viewModel.translatedSubtitles, title: "Translated")
+                if viewModel.showTwoSubtitlesColumns {
+                    SubtitlesView(viewModel: viewModel, subtitles: viewModel.originalSubtitles)
+
+                    SubtitlesView(viewModel: viewModel, subtitles: viewModel.translatedSubtitles)
+
+                } else {
+                    SubtitlesView(viewModel: viewModel, subtitles: viewModel.subtitles2)
+                }
             }
+            .aspectRatio(3/1, contentMode: .fit)
         }
         .onChange(of: playbackSpeed) { newValue in
             viewModel.player?.rate = Float(newValue)
@@ -52,13 +64,11 @@ struct ContentView: View {
     var playerView: some View {
         Group {
             if let player = viewModel.player {
-                VideoPlayer(player: player)
-//                    .frame(height: 200)
+                VideoPlayer(player: viewModel.player)
             } else {
                 // Provide a placeholder when there's no video loaded
                 Rectangle()
                     .fill(Color.gray)
-                    .frame(height: 200)
             }
         }
     }
