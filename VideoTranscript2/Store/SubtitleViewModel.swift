@@ -12,7 +12,7 @@ import Foundation
 
 class SubtitleViewModel: ObservableObject {
     @Published var playbackSpeed: Float = 1.0
-    
+
     @Storage("originalSubtitles") var originalSubtitles: [Subtitle] = [] {
         willSet {
             updateSubtitles2()
@@ -115,7 +115,7 @@ extension SubtitleViewModel {
             return item
         }
     }
-    
+
     func setPlayer(videoURL: URL?) {
         if let urlAsset = player?.currentItem?.asset as? AVURLAsset {
             let url = urlAsset.url
@@ -129,7 +129,7 @@ extension SubtitleViewModel {
             }
 
             player = AVPlayer(url: videoURL)
-            
+
             let interval = CMTime(value: 1, timescale: 2) // every tenth of a second, say
             if let player {
                 timeObserverToken = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { _ in
@@ -157,7 +157,12 @@ extension SubtitleViewModel {
 
     func seek(startTime: TimeInterval) {
         print("seek", startTime)
-        player?.seek(to: CMTime(seconds: Double(startTime + 0.1), preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+        
+        let additionalTime: Double = 0.2
+        let startTimeInSeconds = Double(startTime) + additionalTime
+        let time = CMTime(seconds: startTimeInSeconds, preferredTimescale: 600)
+        
+        player?.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
     }
 
     func prevSubtitle() {
