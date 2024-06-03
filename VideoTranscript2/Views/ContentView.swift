@@ -5,7 +5,7 @@
 //  Created by Viktor Kushnerov on 22.07.23.
 //
 
-import AVKit
+
 import SwiftUI
 
 struct ContentView: View {
@@ -14,7 +14,7 @@ struct ContentView: View {
     var body: some View {
         HStack {
             VStack {
-                playerView
+                PlayerView(player: viewModel.player)
                 
                 Text(viewModel.getCurrentOriginalSubtitle())
                     .font(.title3)
@@ -37,7 +37,7 @@ struct ContentView: View {
                 .frame(maxHeight: 250)
             }
             
-            actionsView
+            ActionsView(viewModel: viewModel)
         }
         .onChange(of: viewModel.playbackSpeed) { newValue in
             viewModel.player?.rate = Float(newValue)
@@ -48,29 +48,8 @@ struct ContentView: View {
             }
         }
     }
-
-    var playerView: some View {
-        Group {
-            if let player = viewModel.player {
-                VideoPlayer(player: player)
-            } else {
-                // Provide a placeholder when there's no video loaded
-                Rectangle()
-                    .fill(Color.gray)
-            }
-        }
-    }
-    
-    var actionsView: some View {
-        VStack {
-            LoadVideoButton(viewModel: viewModel)
-
-            NavigationButtons(viewModel: viewModel)
-
-            Stepper("Speed \(viewModel.playbackSpeed, specifier: "%.2f")", value: $viewModel.playbackSpeed, in: 0.5 ... 2.0, step: 0.05)
-                .frame(maxWidth: 100)
-            
-        }
-        .padding(.trailing, 5)
-    }
 }
+
+
+
+
