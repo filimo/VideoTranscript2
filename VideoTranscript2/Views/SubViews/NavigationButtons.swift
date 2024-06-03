@@ -11,21 +11,29 @@ struct NavigationButtons: View {
     @ObservedObject var viewModel: SubtitleViewModel
 
     var body: some View {
-        Group {
+        GroupBox {
             Button(action: viewModel.prevSubtitle) {
                 Text("Previous")
             }
-            .keyboardShortcut(.leftArrow, modifiers: [])
+            .keyboardShortcut("a", modifiers: [])
+
+            Button(action: {
+                viewModel.isPlaying.toggle()
+            }) {
+                Text(viewModel.isPlaying ? "Pause" : "Play")
+            }
+            .keyboardShortcut("s", modifiers: [])
+//            .keyboardShortcut("c", modifiers: [])
+
+//            Button(action: viewModel.nextSubtitleAndPlay) {
+//                Text("Next&Play")
+//            }
+//            .keyboardShortcut("d", modifiers: [])
 
             Button(action: viewModel.nextSubtitle) {
                 Text("Next")
             }
-            .keyboardShortcut(.rightArrow, modifiers: [])
-
-            Button(action: viewModel.nextSubtitleAndPlay) {
-                Text("Next&Play")
-            }
-            .keyboardShortcut(.space, modifiers: [])
+            .keyboardShortcut("d", modifiers: [])
 
             Button(action: viewModel.repeatSubtitle) {
                 Text("Repeat")

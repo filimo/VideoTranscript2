@@ -21,35 +21,36 @@ struct LoadVideoButton: View {
             }
         }
 
-        Toggle("SRT in 2 colums", isOn: $viewModel.showTwoSubtitlesColumns)
-            .toggleStyle(.button)
+        GroupBox {
+            Text("SRT")
 
-        HStack {
-            Text("Load SRT: ")
+            Toggle("in 2 colums", isOn: $viewModel.showTwoSubtitlesColumns)
+                .toggleStyle(.button)
 
-            Button("Original") {
-                Task {
-                    if let url = await openFile(allowedContentTypes: [UTType.STR]) {
-                        viewModel.originalSubtitles = try await loadSRT(from: url)
-                    } else {
-                        print("User cancelled file opening")
+            GroupBox {
+                Text("Load")
+
+                Button("Original") {
+                    Task {
+                        if let url = await openFile(allowedContentTypes: [UTType.STR]) {
+                            viewModel.originalSubtitles = try await loadSRT(from: url)
+                        } else {
+                            print("User cancelled file opening")
+                        }
                     }
                 }
-            }
 
-            Button("Translated") {
-                Task {
-                    if let url = await openFile(allowedContentTypes: [UTType.STR]) {
-                        viewModel.translatedSubtitles = try await loadSRT(from: url)
-                    } else {
-                        print("User cancelled file opening")
+                Button("Translated") {
+                    Task {
+                        if let url = await openFile(allowedContentTypes: [UTType.STR]) {
+                            viewModel.translatedSubtitles = try await loadSRT(from: url)
+                        } else {
+                            print("User cancelled file opening")
+                        }
                     }
                 }
             }
         }
-        .padding(5) // Добавление отступов вокруг группы
-        .background(Color.gray.opacity(0.1)) // Добавление фона для выделения группы
-        .cornerRadius(8) // Скругление углов для эстетического вида
         .onAppear {
             viewModel.updateSubtitles2()
         }

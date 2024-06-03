@@ -10,48 +10,36 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var viewModel = SubtitleViewModel()
-    @State private var playbackSpeed: Double = 1.0
 
     var body: some View {
-        VStack {
-            playerView
-
-            Text(viewModel.getCurrentOriginalSubtitle())
-                .font(.title3)
-                .textSelection(.enabled)
-
-            Text(viewModel.getCurrentTranlatatedSubtitle())
-                .font(.title3)
-                .textSelection(.enabled)
-
-            HStack {
-                LoadVideoButton(viewModel: viewModel)
-
-                Divider()
-                    .fixedSize()
-
-                PlayPauseButton(viewModel: viewModel)
-
-                NavigationButtons(viewModel: viewModel)
-
-                Slider(value: $playbackSpeed, in: 0.5 ... 2.0, step: 0.1) {
-                    Text("Speed \(playbackSpeed, specifier: "%.1f")")
+        HStack {
+            VStack {
+                playerView
+                
+                Text(viewModel.getCurrentOriginalSubtitle())
+                    .font(.title3)
+                    .textSelection(.enabled)
+                
+                Text(viewModel.getCurrentTranlatatedSubtitle())
+                    .font(.title3)
+                    .textSelection(.enabled)
+                
+                HStack {
+                    if viewModel.showTwoSubtitlesColumns {
+                        SubtitlesView(viewModel: viewModel, subtitles: viewModel.originalSubtitles)
+                        
+                        SubtitlesView(viewModel: viewModel, subtitles: viewModel.translatedSubtitles)
+                        
+                    } else {
+                        SubtitlesView(viewModel: viewModel, subtitles: viewModel.subtitles2)
+                    }
                 }
-                .frame(maxWidth: 200)
+                .frame(maxHeight: 250)
             }
-            HStack {
-                if viewModel.showTwoSubtitlesColumns {
-                    SubtitlesView(viewModel: viewModel, subtitles: viewModel.originalSubtitles)
-
-                    SubtitlesView(viewModel: viewModel, subtitles: viewModel.translatedSubtitles)
-
-                } else {
-                    SubtitlesView(viewModel: viewModel, subtitles: viewModel.subtitles2)
-                }
-            }
-            .aspectRatio(3/1, contentMode: .fit)
+            
+            actionsView
         }
-        .onChange(of: playbackSpeed) { newValue in
+        .onChange(of: viewModel.playbackSpeed) { newValue in
             viewModel.player?.rate = Float(newValue)
         }
         .onAppear {
@@ -64,12 +52,25 @@ struct ContentView: View {
     var playerView: some View {
         Group {
             if let player = viewModel.player {
-                VideoPlayer(player: viewModel.player)
+                VideoPlayer(player: player)
             } else {
                 // Provide a placeholder when there's no video loaded
                 Rectangle()
                     .fill(Color.gray)
             }
         }
+    }
+    
+    var actionsView: some View {
+        VStack {
+            LoadVideoButton(viewModel: viewModel)
+
+            NavigationButtons(viewModel: viewModel)
+
+            Stepper("Speed \(viewModel.playbackSpeed, specifier: "%.2f")", value: $viewModel.playbackSpeed, in: 0.5 ... 2.0, step: 0.05)
+                .frame(maxWidth: 100)
+            
+        }
+        .padding(.trailing, 5)
     }
 }

@@ -5,12 +5,15 @@
 //  Created by Viktor Kushnerov on 22.07.23.
 //
 
-import AVKit
+import Combine
 import SwiftUI
 
 struct SubtitlesView: View {
+    @StateObject private var speechSynthesizer = SpeechSynthesizer()
     @ObservedObject var viewModel: SubtitleViewModel
     var subtitles: [Subtitle]
+
+    @State private var cancellables = Set<AnyCancellable>()
 
     var body: some View {
         ScrollViewReader { scrollProxy in
@@ -28,8 +31,27 @@ struct SubtitlesView: View {
                 }
             }
             .onReceive(viewModel.debounceActiveId) { id in
+                let isPlaying = viewModel.isPlaying
+
                 print("onReceive debounceActiveId", id)
                 scrollProxy.scrollTo(id - 5, anchor: .top)
+
+                if speechSynthesizer.speakingText != "" {
+                    viewModel.isPlaying = false
+                }
+
+                speechSynthesizer.$speakingText
+                    .filter { $0 == "" }
+                    .delay(for: 0.5, scheduler: RunLoop.main)
+                    .first()
+                    .sink { _ in
+                        if isPlaying { viewModel.isPlaying = true }
+                        if let text = viewModel.translatedSubtitles.first(where: { $0.id == id })?.text {
+                            speechSynthesizer.stop()
+                            speechSynthesizer.speak(text: text.removeUnreadableText())
+                        }
+                    }
+                    .store(in: &cancellables)
             }
         }
     }

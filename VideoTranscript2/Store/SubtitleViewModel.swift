@@ -11,6 +11,8 @@ import Combine
 import Foundation
 
 class SubtitleViewModel: ObservableObject {
+    @Published var playbackSpeed: Float = 1.0
+    
     @Storage("originalSubtitles") var originalSubtitles: [Subtitle] = [] {
         willSet {
             updateSubtitles2()
@@ -88,6 +90,7 @@ class SubtitleViewModel: ObservableObject {
             print("isPlaying", isPlaying)
             if isPlaying {
                 player?.play()
+                player?.rate = playbackSpeed
             } else {
                 player?.pause()
             }
