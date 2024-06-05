@@ -9,9 +9,10 @@
 import AVKit
 import Combine
 import Foundation
+import SwiftUI
 
 class SubtitleViewModel: ObservableObject {
-    @Published var playbackSpeed: Float = 1.0
+    @AppStorage("playbackSpeed") var playbackSpeed: Double = 1.0
 
     @Storage("originalSubtitles") var originalSubtitles: [Subtitle] = [] {
         willSet {
@@ -90,7 +91,7 @@ class SubtitleViewModel: ObservableObject {
             print("isPlaying", isPlaying)
             if isPlaying {
                 player?.play()
-                player?.rate = playbackSpeed
+                player?.rate = Float(playbackSpeed)
             } else {
                 player?.pause()
             }
@@ -137,7 +138,7 @@ extension SubtitleViewModel {
                     self.currentTime = currentTime
                     if let subtitle = self.originalSubtitles.first(where: {
                         if $0.startTime < $0.endTime {
-                            return $0.startTime ... $0.endTime ~= currentTime
+                            return $0.startTime ... $0.endTime ~= (currentTime + 0.2)
                         } else {
                             return false
                         }
