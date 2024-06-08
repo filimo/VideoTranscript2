@@ -9,7 +9,7 @@ import Combine
 import SwiftUI
 
 struct SubtitlesView: View {
-    @StateObject private var speechSynthesizerModel = OpenAISpeechSynthesizerStore()
+    @StateObject private var speechSynthesizer = OpenAISpeechSynthesizerStore()
     @ObservedObject var viewModel: SubtitleStore
     var subtitles: [Subtitle]
     
@@ -24,6 +24,9 @@ struct SubtitlesView: View {
                         .id(subtitle.id)
                         .underline(subtitle.id == viewModel.activeId)
                         .onTapGesture {
+                            speechSynthesizer.stop()
+                            viewModel.isPlaying = false
+                            
                             // Seek the player to the start time of the subtitle
                             viewModel.seek(startTime: subtitle.startTime)
                             viewModel.activeId = subtitle.id
@@ -44,7 +47,7 @@ private extension SubtitlesView {
         print("onReceive debounceActiveId", id)
         scrollProxy.scrollTo(id - 5, anchor: .top)
             
-        if speechSynthesizerModel.speakingText != "" {
+        if speechSynthesizer.speakingText != "" {
             viewModel.isPlaying = false
         }
             
@@ -56,7 +59,7 @@ private extension SubtitlesView {
         
     func waitForSpeechToEnd(isPlaying: Bool, id: Int) async {
         // Wait until speakingText is empty
-        while speechSynthesizerModel.speakingText != "" {
+        while speechSynthesizer.speakingText != "" {
             try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
         }
         
@@ -67,8 +70,8 @@ private extension SubtitlesView {
         }
             
         if let text = viewModel.translatedSubtitles.first(where: { $0.id == id })?.text {
-            speechSynthesizerModel.stop()
-            await speechSynthesizerModel.synthesizeSpeech(textToSynthesize: text.removeUnreadableText())
+            speechSynthesizer.stop()
+            await speechSynthesizer.synthesizeSpeech(textToSynthesize: text.removeUnreadableText())
         }
     }
 }
