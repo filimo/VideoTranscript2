@@ -9,8 +9,8 @@ import Combine
 import SwiftUI
 
 struct SubtitlesView: View {
-    @StateObject private var speechSynthesizerModel = SpeechSynthesisViewModel()
-    @ObservedObject var viewModel: SubtitleViewModel
+    @StateObject private var speechSynthesizerModel = OpenAISpeechSynthesizerStore()
+    @ObservedObject var viewModel: SubtitleStore
     var subtitles: [Subtitle]
     
     @State private var currentTask: Task<Void, Never>? = nil

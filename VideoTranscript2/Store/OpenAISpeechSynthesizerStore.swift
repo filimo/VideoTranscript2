@@ -1,12 +1,5 @@
 //
-//  SpeechSynthesisViewModel.swift
-//  VideoTranscript2
-//
-//  Created by Viktor Kushnerov on 7.06.24.
-//
-
-//
-//  SpeechSynthesisViewModel.swift
+//  OpenAISpeechSynthesizerStore.swift
 //  VideoTranscript2
 //
 //  Created by Viktor Kushnerov on 7.06.24.
@@ -17,7 +10,7 @@ import OpenAI
 import SwiftUI
 
 @MainActor
-class SpeechSynthesisViewModel: ObservableObject {
+class OpenAISpeechSynthesizerStore: ObservableObject {
     @Published var speakingText: String = ""
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? {
@@ -58,6 +51,13 @@ class SpeechSynthesisViewModel: ObservableObject {
         isLoading = false
     }
     
+    public func stop() {
+        player?.stop()
+        speakingText = ""
+    }
+}
+
+private extension OpenAISpeechSynthesizerStore {
     private func handleCachedAudio(at cacheURL: URL, textToSynthesize: String) async {
         do {
             let audioData = try Data(contentsOf: cacheURL)
@@ -106,11 +106,6 @@ class SpeechSynthesisViewModel: ObservableObject {
                 continuation.resume()
             }
         }
-    }
-    
-    public func stop() {
-        player?.stop()
-        speakingText = ""
     }
     
     private func setError(message: String) {

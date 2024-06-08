@@ -1,12 +1,12 @@
 //
-//  SpeechSynthesizer.swift
+//  AVSpeechSynthesizerStore.swift
 //  VideoTranscript2
 //
 //  Created by Viktor Kushnerov on 2.06.24.
 //
 import AVFoundation
 
-class SpeechSynthesizer: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
+class AVSpeechSynthesizerStore: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
     private var synthesizer = AVSpeechSynthesizer()
     private let voice: AVSpeechSynthesisVoice?
     
@@ -35,15 +35,3 @@ class SpeechSynthesizer: NSObject, ObservableObject, AVSpeechSynthesizerDelegate
     }
 }
 
-extension String {
-    func removeUnreadableText() -> String {
-        let allowedCharacters = CharacterSet.letters
-            .union(.decimalDigits)
-            .union(.whitespacesAndNewlines)
-        // .union(.punctuationCharacters)
-        
-        let result = self.unicodeScalars.filter { allowedCharacters.contains($0) }.map { String($0) }.joined()
-        
-        return result
-    }
-}

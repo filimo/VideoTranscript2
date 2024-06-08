@@ -16,4 +16,15 @@ extension String {
         }
         return hash.map { String(format: "%02x", $0) }.joined()
     }
+    
+    func removeUnreadableText() -> String {
+        let allowedCharacters = CharacterSet.letters
+            .union(.decimalDigits)
+            .union(.whitespacesAndNewlines)
+        // .union(.punctuationCharacters)
+        
+        let result = self.unicodeScalars.filter { allowedCharacters.contains($0) }.map { String($0) }.joined()
+        
+        return result
+    }
 }

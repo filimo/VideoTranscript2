@@ -1,6 +1,6 @@
 
 //
-//  NavigationButtons.swift
+//  SubtitleStore.swift
 //  VideoTranscript2
 //
 //  Created by Viktor Kushnerov on 22.07.23.
@@ -11,7 +11,7 @@ import Combine
 import Foundation
 import SwiftUI
 
-class SubtitleViewModel: ObservableObject {
+class SubtitleStore: ObservableObject {
     @AppStorage("playbackSpeed") var playbackSpeed: Double = 1.0
 
     @Storage("originalSubtitles") var originalSubtitles: [Subtitle] = [] {
@@ -107,7 +107,7 @@ class SubtitleViewModel: ObservableObject {
     @Storage("currentTime") var currentTime: Double = 0
 }
 
-extension SubtitleViewModel {
+extension SubtitleStore {
     func updateSubtitles2() {
         subtitles2 = originalSubtitles.map { item in
             if let text = translatedSubtitles.first(where: { $0.id == item.id })?.text {

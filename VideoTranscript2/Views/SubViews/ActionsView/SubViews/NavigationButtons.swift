@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct NavigationButtons: View {
-    @ObservedObject var viewModel: SubtitleViewModel
+    @ObservedObject var viewModel: SubtitleStore
 
     var body: some View {
         GroupBox {

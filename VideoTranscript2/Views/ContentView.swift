@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var viewModel = SubtitleViewModel()
+    @StateObject private var viewModel = SubtitleStore()
 
     var body: some View {
         HStack {

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ActionsView: View {
-    @ObservedObject var viewModel: SubtitleViewModel
+    @ObservedObject var viewModel: SubtitleStore
 
     var body: some View {
         VStack {
