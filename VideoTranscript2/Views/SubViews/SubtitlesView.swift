@@ -9,7 +9,7 @@ import Combine
 import SwiftUI
 
 struct SubtitlesView: View {
-    @StateObject private var speechSynthesizer = OpenAISpeechSynthesizerStore()
+    @EnvironmentObject private var speechSynthesizer: OpenAISpeechSynthesizerStore
     @ObservedObject var viewModel: SubtitleStore
     var subtitles: [Subtitle]
     
@@ -45,7 +45,7 @@ private extension SubtitlesView {
         let isPlaying = viewModel.isPlaying
             
         print("onReceive debounceActiveId", id)
-        scrollProxy.scrollTo(id - 5, anchor: .top)
+        scrollProxy.scrollTo(id - 4, anchor: .top)
             
         if speechSynthesizer.speakingText != "" {
             viewModel.isPlaying = false

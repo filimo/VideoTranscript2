@@ -8,17 +8,22 @@
 import SwiftUI
 
 struct NavigationButtons: View {
+    @EnvironmentObject private var speechSynthesizer: OpenAISpeechSynthesizerStore
     @ObservedObject var viewModel: SubtitleStore
 
     var body: some View {
         GroupBox {
-            Button(action: viewModel.prevSubtitle) {
-                Text("Previous")
+            Button("Previous") {
+                speechSynthesizer.stop()
+                viewModel.prevSubtitle()
             }
             .keyboardShortcut("a", modifiers: [])
 
             Button(action: {
                 viewModel.isPlaying.toggle()
+                if viewModel.isPlaying == false {
+                    speechSynthesizer.stop()
+                }
             }) {
                 Text(viewModel.isPlaying ? "Pause" : "Play")
             }
@@ -30,13 +35,15 @@ struct NavigationButtons: View {
 //            }
 //            .keyboardShortcut("d", modifiers: [])
 
-            Button(action: viewModel.nextSubtitle) {
-                Text("Next")
+            Button("Next") {
+                speechSynthesizer.stop()
+                viewModel.nextSubtitle()
             }
             .keyboardShortcut("d", modifiers: [])
 
-            Button(action: viewModel.repeatSubtitle) {
-                Text("Repeat")
+            Button("Repeat") {
+                speechSynthesizer.stop()
+                viewModel.repeatSubtitle()
             }
             .keyboardShortcut(.return, modifiers: [])
         }

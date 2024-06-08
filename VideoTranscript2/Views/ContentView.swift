@@ -5,7 +5,6 @@
 //  Created by Viktor Kushnerov on 22.07.23.
 //
 
-
 import SwiftUI
 
 struct ContentView: View {
@@ -15,28 +14,28 @@ struct ContentView: View {
         HStack {
             VStack {
                 PlayerView(player: viewModel.player)
-                
+
                 Text(viewModel.getCurrentOriginalSubtitle())
                     .font(.title3)
                     .textSelection(.enabled)
-                
+
                 Text(viewModel.getCurrentTranlatatedSubtitle())
                     .font(.title3)
                     .textSelection(.enabled)
-                
+
                 HStack {
                     if viewModel.showTwoSubtitlesColumns {
                         SubtitlesView(viewModel: viewModel, subtitles: viewModel.originalSubtitles)
-                        
+
                         SubtitlesView(viewModel: viewModel, subtitles: viewModel.translatedSubtitles)
-                        
+
                     } else {
                         SubtitlesView(viewModel: viewModel, subtitles: viewModel.subtitles2)
                     }
                 }
                 .frame(maxHeight: 250)
             }
-            
+
             ActionsView(viewModel: viewModel)
         }
         .onChange(of: viewModel.playbackSpeed) { newValue in
@@ -49,7 +48,3 @@ struct ContentView: View {
         }
     }
 }
-
-
-
-
