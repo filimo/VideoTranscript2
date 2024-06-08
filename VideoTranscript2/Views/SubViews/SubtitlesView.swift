@@ -58,10 +58,7 @@ private extension SubtitlesView {
     }
         
     func waitForSpeechToEnd(isPlaying: Bool, id: Int) async {
-        // Wait until speakingText is empty
-        while speechSynthesizer.speakingText != "" {
-            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
-        }
+        await speechSynthesizer.waitUntilSpeakingIsDone()
         
         if Task.isCancelled { return }  // Проверка на отмену задачи
             
