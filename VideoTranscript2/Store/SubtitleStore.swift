@@ -136,7 +136,7 @@ extension SubtitleStore {
             }
 
             player = AVPlayer(url: videoURL)
-            player?.volume = 0.2
+            player?.volume = 0.1
 
             let interval = CMTime(value: 1, timescale: 2) // every tenth of a second, say
             if let player {

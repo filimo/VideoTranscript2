@@ -20,6 +20,8 @@ class OpenAISpeechSynthesizerStore: ObservableObject {
             }
         }
     }
+
+    @Published var isCreatingSpeech: Bool = false
     
     private let openAI: OpenAI
     private var player: AVAudioPlayer?
@@ -51,7 +53,7 @@ class OpenAISpeechSynthesizerStore: ObservableObject {
         isLoading = false
     }
     
-    public func stop() {
+    func stop() {
         player?.stop()
         speakingText = ""
     }
@@ -64,7 +66,7 @@ class OpenAISpeechSynthesizerStore: ObservableObject {
 }
 
 private extension OpenAISpeechSynthesizerStore {
-    private func handleCachedAudio(at cacheURL: URL, textToSynthesize: String) async {
+    func handleCachedAudio(at cacheURL: URL, textToSynthesize: String) async {
         do {
             let audioData = try Data(contentsOf: cacheURL)
             speakingText = textToSynthesize
@@ -74,27 +76,33 @@ private extension OpenAISpeechSynthesizerStore {
         }
     }
     
-    private func handleNewAudio(textToSynthesize: String, cacheURL: URL) async {
+    func handleNewAudio(textToSynthesize: String, cacheURL: URL) async {
         let query = AudioSpeechQuery(model: .tts_1, input: textToSynthesize, voice: .alloy, responseFormat: .mp3, speed: 1.0)
         
         do {
+            isCreatingSpeech = true
+            
             let audioResult = try await openAI.audioCreateSpeech(query: query)
             let audioData = audioResult.audio
+            
             try audioData.write(to: cacheURL)
+            
+            isCreatingSpeech = false
             speakingText = textToSynthesize
+            
             await playAudio(data: audioData)
         } catch {
             handleNetworkError(error)
         }
     }
     
-    private func getCacheURL(for text: String) -> URL {
+    func getCacheURL(for text: String) -> URL {
         let cacheDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
         let fileName = text.sha256() + ".mp3"
         return cacheDirectory.appendingPathComponent(fileName)
     }
     
-    private func playAudio(data: Data) async {
+    func playAudio(data: Data) async {
         do {
             player = try AVAudioPlayer(data: data)
             player?.delegate = audioPlayerDelegate
@@ -106,7 +114,7 @@ private extension OpenAISpeechSynthesizerStore {
         }
     }
     
-    private func waitForAudioToFinishPlaying() async {
+    func waitForAudioToFinishPlaying() async {
         await withCheckedContinuation { continuation in
             audioPlayerDelegate.onFinish = {
                 continuation.resume()
@@ -114,11 +122,11 @@ private extension OpenAISpeechSynthesizerStore {
         }
     }
     
-    private func setError(message: String) {
+    func setError(message: String) {
         errorMessage = message
     }
     
-    private func handleNetworkError(_ error: Error) {
+    func handleNetworkError(_ error: Error) {
         if let urlError = error as? URLError {
             switch urlError.code {
             case .notConnectedToInternet:
