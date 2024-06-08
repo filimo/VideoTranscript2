@@ -9,12 +9,12 @@ import Combine
 import SwiftUI
 
 struct SubtitlesView: View {
-    @StateObject private var speechSynthesizer = SpeechSynthesizer()
+    @StateObject private var speechSynthesizerModel = SpeechSynthesisViewModel()
     @ObservedObject var viewModel: SubtitleViewModel
     var subtitles: [Subtitle]
-
-    @State private var cancellables = Set<AnyCancellable>()
-
+    
+    @State private var currentTask: Task<Void, Never>? = nil
+    
     var body: some View {
         ScrollViewReader { scrollProxy in
             VStack {
@@ -31,28 +31,44 @@ struct SubtitlesView: View {
                 }
             }
             .onReceive(viewModel.debounceActiveId) { id in
-                let isPlaying = viewModel.isPlaying
-
-                print("onReceive debounceActiveId", id)
-                scrollProxy.scrollTo(id - 5, anchor: .top)
-
-                if speechSynthesizer.speakingText != "" {
-                    viewModel.isPlaying = false
-                }
-
-                speechSynthesizer.$speakingText
-                    .filter { $0 == "" }
-                    .delay(for: 0.5, scheduler: RunLoop.main)
-                    .first()
-                    .sink { _ in
-                        if isPlaying { viewModel.isPlaying = true }
-                        if let text = viewModel.translatedSubtitles.first(where: { $0.id == id })?.text {
-                            speechSynthesizer.stop()
-                            speechSynthesizer.speak(text: text.removeUnreadableText())
-                        }
-                    }
-                    .store(in: &cancellables)
+                handleActiveIdChange(id, scrollProxy: scrollProxy)
             }
+        }
+    }
+}
+ 
+private extension SubtitlesView {
+    func handleActiveIdChange(_ id: Int, scrollProxy: ScrollViewProxy) {
+        let isPlaying = viewModel.isPlaying
+            
+        print("onReceive debounceActiveId", id)
+        scrollProxy.scrollTo(id - 5, anchor: .top)
+            
+        if speechSynthesizerModel.speakingText != "" {
+            viewModel.isPlaying = false
+        }
+            
+        currentTask?.cancel() // Отмена предыдущей задачи, если она существует
+        currentTask = Task {
+            await waitForSpeechToEnd(isPlaying: isPlaying, id: id)
+        }
+    }
+        
+    func waitForSpeechToEnd(isPlaying: Bool, id: Int) async {
+        // Wait until speakingText is empty
+        while speechSynthesizerModel.speakingText != "" {
+            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+        }
+        
+        if Task.isCancelled { return }  // Проверка на отмену задачи
+            
+        if isPlaying {
+            viewModel.isPlaying = true
+        }
+            
+        if let text = viewModel.translatedSubtitles.first(where: { $0.id == id })?.text {
+            speechSynthesizerModel.stop()
+            await speechSynthesizerModel.synthesizeSpeech(textToSynthesize: text.removeUnreadableText())
         }
     }
 }

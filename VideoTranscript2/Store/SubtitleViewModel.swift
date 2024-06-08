@@ -89,11 +89,17 @@ class SubtitleViewModel: ObservableObject {
     @Published var isPlaying = false {
         didSet {
             print("isPlaying", isPlaying)
+            guard let player = player else { return }
+
             if isPlaying {
-                player?.play()
-                player?.rate = Float(playbackSpeed)
+                if player.rate == 0 {
+                    player.play()
+                    player.rate = Float(playbackSpeed)
+                }
             } else {
-                player?.pause()
+                if player.rate > 0 {
+                    player.pause()
+                }
             }
         }
     }
@@ -130,6 +136,7 @@ extension SubtitleViewModel {
             }
 
             player = AVPlayer(url: videoURL)
+            player?.volume = 0.2
 
             let interval = CMTime(value: 1, timescale: 2) // every tenth of a second, say
             if let player {
@@ -158,11 +165,11 @@ extension SubtitleViewModel {
 
     func seek(startTime: TimeInterval) {
         print("seek", startTime)
-        
-        let additionalTime: Double = 0.2
+
+        let additionalTime = 0.2
         let startTimeInSeconds = Double(startTime) + additionalTime
         let time = CMTime(seconds: startTimeInSeconds, preferredTimescale: 600)
-        
+
         player?.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero)
     }
 

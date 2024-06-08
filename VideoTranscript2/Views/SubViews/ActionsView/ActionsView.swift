@@ -17,8 +17,7 @@ struct ActionsView: View {
             NavigationButtons(viewModel: viewModel)
 
             Stepper("Speed \(viewModel.playbackSpeed, specifier: "%.2f")", value: $viewModel.playbackSpeed, in: 0.5 ... 2.0, step: 0.05)
-                .frame(maxWidth: 100)
-            
+                .frame(maxWidth: 100)            
         }
         .padding(.trailing, 5)
     }
