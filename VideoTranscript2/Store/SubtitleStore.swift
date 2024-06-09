@@ -12,7 +12,11 @@ import Foundation
 import SwiftUI
 
 class SubtitleStore: ObservableObject {
-    @AppStorage("playbackSpeed") var playbackSpeed: Double = 1.0
+    @AppStorage("playbackSpeed") var playbackSpeed: Double = 1.0 {
+        willSet {
+            print(1)
+        }
+    }
 
     @Storage("originalSubtitles") var originalSubtitles: [Subtitle] = [] {
         willSet {
@@ -86,27 +90,22 @@ class SubtitleStore: ObservableObject {
 
     @Published var player: AVPlayer? = nil
     @Published var timeObserverToken: Any? = nil
-    @Published var isPlaying = false {
-        didSet {
-            print("isPlaying", isPlaying)
-            guard let player = player else { return }
 
-            if isPlaying {
-                if player.rate == 0 {
-                    player.play()
-                    player.rate = Float(playbackSpeed)
-                }
-            } else {
-                if player.rate > 0 {
-                    player.pause()
-                }
-            }
-        }
-    }
+    @Published var isPlaying = false
 
     @Storage("currentTime") var currentTime: Double = 0
-    
-    private var stopPlayingTask: Task<Void, Never>? = nil
+
+    private var stopPlayingTask: Task<Void, Never>?
+    private var cancellables = Set<AnyCancellable>()
+
+    init() {
+        $isPlaying
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isPlaying in
+                self?.handleIsPlayingChange(isPlaying)
+            }
+            .store(in: &cancellables)
+    }
 }
 
 extension SubtitleStore {
@@ -223,8 +222,10 @@ extension SubtitleStore {
             await stopPlaying(after: duration)
         }
     }
+}
 
-    private func stopPlaying(after duration: TimeInterval) async {
+private extension SubtitleStore {
+    func stopPlaying(after duration: TimeInterval) async {
         // Set a delay to stop the player after the subtitle has finished
         do {
             try await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000)) // duration в секундах, конвертируем в наносекунды
@@ -233,6 +234,31 @@ extension SubtitleStore {
             }
         } catch {
             // Обработка ошибки, если задача была отменена
+        }
+    }
+
+    func handleIsPlayingChange(_ isPlaying: Bool) {
+        print("isPlaying", isPlaying)
+
+        if isPlaying {
+            playIfPaused()
+        } else {
+            pauseIfPlaying()
+        }
+    }
+
+    func playIfPaused() {
+        guard let player = player else { return }
+        if player.rate == 0 {
+            player.play()
+            player.rate = Float(playbackSpeed)
+        }
+    }
+
+    func pauseIfPlaying() {
+        guard let player = player else { return }
+        if player.rate > 0 {
+            player.pause()
         }
     }
 }
