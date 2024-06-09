@@ -12,22 +12,16 @@ import Foundation
 import SwiftUI
 
 class SubtitleStore: ObservableObject {
-    @AppStorage("playbackSpeed") var playbackSpeed: Double = 1.0 {
-        willSet {
-            print(1)
-        }
-    }
+    @AppStorage("playbackSpeed") var playbackSpeed: Double = 1.0
 
     @Storage("originalSubtitles") var originalSubtitles: [Subtitle] = [] {
         willSet {
-            updateSubtitles2()
             objectWillChange.send()
         }
     }
 
     @Storage("translatedSubtitles") var translatedSubtitles: [Subtitle] = [] {
         willSet {
-            updateSubtitles2()
             objectWillChange.send()
         }
     }
@@ -38,7 +32,20 @@ class SubtitleStore: ObservableObject {
         }
     }
 
-    var subtitles2: [Subtitle] = []
+    var subtitles2: [Subtitle] {
+        return originalSubtitles.map { item in
+            if let text = translatedSubtitles.first(where: { $0.id == item.id })?.text {
+                return Subtitle(
+                    id: item.id,
+                    startTime: item.startTime,
+                    endTime: item.endTime,
+                    text: item.text + "\n    \(text)"
+                )
+            }
+
+            return item
+        }
+    }
 
     @Published var activeId: Int = 0 {
         didSet {
@@ -104,26 +111,11 @@ class SubtitleStore: ObservableObject {
             .sink { [weak self] isPlaying in
                 self?.handleIsPlayingChange(isPlaying)
             }
-            .store(in: &cancellables)
+            .store(in: &cancellables)        
     }
 }
 
 extension SubtitleStore {
-    func updateSubtitles2() {
-        subtitles2 = originalSubtitles.map { item in
-            if let text = translatedSubtitles.first(where: { $0.id == item.id })?.text {
-                return Subtitle(
-                    id: item.id,
-                    startTime: item.startTime,
-                    endTime: item.endTime,
-                    text: item.text + "\n    \(text)"
-                )
-            }
-
-            return item
-        }
-    }
-
     func setPlayer(videoURL: URL?) {
         if let urlAsset = player?.currentItem?.asset as? AVURLAsset {
             let url = urlAsset.url

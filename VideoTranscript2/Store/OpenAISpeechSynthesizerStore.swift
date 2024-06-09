@@ -97,7 +97,7 @@ private extension OpenAISpeechSynthesizerStore {
     }
     
     func handleNewAudio(textToSynthesize: String, cacheURL: URL) async {
-        let query = AudioSpeechQuery(model: .tts_1, input: textToSynthesize, voice: .alloy, responseFormat: .mp3, speed: 1.0)
+        let query = AudioSpeechQuery(model: .tts_1, input: textToSynthesize, voice: .alloy, responseFormat: .mp3, speed: 1.1)
         
         do {
             isCreatingSpeech = true

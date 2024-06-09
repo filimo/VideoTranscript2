@@ -51,8 +51,5 @@ struct LoadVideoButton: View {
                 }
             }
         }
-        .onAppear {
-            viewModel.updateSubtitles2()
-        }
     }
 }
