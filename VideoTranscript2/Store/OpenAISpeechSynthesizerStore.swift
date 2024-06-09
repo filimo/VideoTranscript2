@@ -57,10 +57,18 @@ class OpenAISpeechSynthesizerStore: ObservableObject {
         player?.stop()
         speakingText = ""
     }
+
+    func pause() {
+        player?.pause()
+    }
     
+    func play() {
+        player?.play()
+    }
+
     func waitUntilSpeakingIsDone() async {
-        while speakingText != "" {
-            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+        if speakingText != "" {
+            await waitForAudioToFinishPlaying()
         }
     }
 }

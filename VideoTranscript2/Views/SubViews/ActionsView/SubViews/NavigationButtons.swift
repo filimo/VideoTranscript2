@@ -21,8 +21,10 @@ struct NavigationButtons: View {
 
             Button(action: {
                 viewModel.isPlaying.toggle()
-                if viewModel.isPlaying == false {
-                    speechSynthesizer.stop()
+                if viewModel.isPlaying {
+                    speechSynthesizer.play()
+                } else {
+                    speechSynthesizer.pause()
                 }
             }) {
                 Text(viewModel.isPlaying ? "Pause" : "Play")
@@ -45,7 +47,8 @@ struct NavigationButtons: View {
                 speechSynthesizer.stop()
                 viewModel.repeatSubtitle()
             }
-            .keyboardShortcut(.return, modifiers: [])
+            .keyboardShortcut("r", modifiers: [])
+
         }
     }
 }
