@@ -8,42 +8,42 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var viewModel = SubtitleStore()
+    @StateObject private var subtitleStore = SubtitleStore()
 
     var body: some View {
         HStack {
             VStack {
-                PlayerView(player: viewModel.player)
+                PlayerView(player: subtitleStore.player)
 
-                Text(viewModel.getCurrentOriginalSubtitle())
+                Text(subtitleStore.getCurrentOriginalSubtitle())
                     .font(.title3)
                     .textSelection(.enabled)
 
-                Text(viewModel.getCurrentTranlatatedSubtitle())
+                Text(subtitleStore.getCurrentTranlatatedSubtitle())
                     .font(.title3)
                     .textSelection(.enabled)
 
                 HStack {
-                    if viewModel.showTwoSubtitlesColumns {
-                        SubtitlesView(viewModel: viewModel, subtitles: viewModel.originalSubtitles)
+                    if subtitleStore.showTwoSubtitlesColumns {
+                        SubtitlesView(viewModel: subtitleStore, subtitles: subtitleStore.originalSubtitles)
 
-                        SubtitlesView(viewModel: viewModel, subtitles: viewModel.translatedSubtitles)
+                        SubtitlesView(viewModel: subtitleStore, subtitles: subtitleStore.translatedSubtitles)
 
                     } else {
-                        SubtitlesView(viewModel: viewModel, subtitles: viewModel.subtitles2)
+                        SubtitlesView(viewModel: subtitleStore, subtitles: subtitleStore.subtitles2)
                     }
                 }
                 .frame(maxHeight: 250)
             }
 
-            ActionsView(viewModel: viewModel)
+            ActionsView(subtitleStore: subtitleStore)
         }
-        .onChange(of: viewModel.playbackSpeed) { newValue in
-            viewModel.player?.rate = Float(newValue)
+        .onChange(of: subtitleStore.playbackSpeed) { newValue in
+            subtitleStore.player?.rate = Float(newValue)
         }
         .onAppear {
-            if let videoURL = viewModel.videoURL {
-                viewModel.setPlayer(videoURL: videoURL)
+            if let videoURL = subtitleStore.videoURL {
+                subtitleStore.setPlayer(videoURL: videoURL)
             }
         }
     }

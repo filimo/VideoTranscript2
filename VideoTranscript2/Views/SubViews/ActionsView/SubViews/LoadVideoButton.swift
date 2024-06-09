@@ -10,13 +10,13 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct LoadVideoButton: View {
-    @ObservedObject var viewModel: SubtitleStore
+    @ObservedObject var subtitleStore: SubtitleStore
 
     var body: some View {
         Button("Load Video") {
             Task {
                 if let url = await FileHelper.openFile(allowedContentTypes: [UTType.movie, .mp3]) {
-                    viewModel.videoURL = url
+                    subtitleStore.videoURL = url
                 }
             }
         }
@@ -24,7 +24,7 @@ struct LoadVideoButton: View {
         GroupBox {
             Text("SRT")
 
-            Toggle("in 2 colums", isOn: $viewModel.showTwoSubtitlesColumns)
+            Toggle("in 2 colums", isOn: $subtitleStore.showTwoSubtitlesColumns)
                 .toggleStyle(.button)
 
             GroupBox {
@@ -33,7 +33,7 @@ struct LoadVideoButton: View {
                 Button("Original") {
                     Task {
                         if let url = await FileHelper.openFile(allowedContentTypes: [UTType.STR]) {
-                            viewModel.originalSubtitles = try await SubtitleHelper.loadSRT(from: url)
+                            subtitleStore.originalSubtitles = try await SubtitleHelper.loadSRT(from: url)
                         } else {
                             print("User cancelled file opening")
                         }
@@ -43,7 +43,7 @@ struct LoadVideoButton: View {
                 Button("Translated") {
                     Task {
                         if let url = await FileHelper.openFile(allowedContentTypes: [UTType.STR]) {
-                            viewModel.translatedSubtitles = try await SubtitleHelper.loadSRT(from: url)
+                            subtitleStore.translatedSubtitles = try await SubtitleHelper.loadSRT(from: url)
                         } else {
                             print("User cancelled file opening")
                         }
