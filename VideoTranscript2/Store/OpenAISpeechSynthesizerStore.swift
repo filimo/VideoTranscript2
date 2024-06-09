@@ -42,7 +42,12 @@ class OpenAISpeechSynthesizerStore: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        let cacheURL = getCacheURL(for: textToSynthesize)
+        var cacheURL = getCacheURL(for: textToSynthesize)
+        
+        if !FileManager.default.fileExists(atPath: cacheURL.path) {
+            // Попробуем найти кэш с удаленным непригодным для чтения текстом
+            cacheURL = getCacheURL(for: textToSynthesize.removeUnreadableText())
+        }
         
         if FileManager.default.fileExists(atPath: cacheURL.path) {
             print("Fetching audio from cache for text: \(textToSynthesize)")
@@ -54,6 +59,7 @@ class OpenAISpeechSynthesizerStore: ObservableObject {
         
         isLoading = false
     }
+
     
     func stop() {
         player?.stop()

@@ -68,7 +68,7 @@ private extension SubtitlesView {
             
         if let text = viewModel.translatedSubtitles.first(where: { $0.id == id })?.text {
             speechSynthesizer.stop()
-            await speechSynthesizer.synthesizeSpeech(textToSynthesize: text.removeUnreadableText())
+            await speechSynthesizer.synthesizeSpeech(textToSynthesize: text)
         }
     }
 }
