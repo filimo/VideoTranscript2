@@ -27,6 +27,8 @@ class OpenAISpeechSynthesizerStore: ObservableObject {
     private var player: AVAudioPlayer?
     private var audioPlayerDelegate: AudioPlayerDelegate = .init()
     
+    private var continuation: CheckedContinuation<Void, Never>?
+    
     init() {
         guard let apiToken = KeychainHelper.retrieveTokenFromKeychain() else {
             fatalError("API token not found in Keychain")
@@ -57,6 +59,11 @@ class OpenAISpeechSynthesizerStore: ObservableObject {
         player?.stop()
         speakingText = ""
     }
+    
+    func replay() {
+        player?.currentTime = 0
+        player?.play()
+    }
 
     func pause() {
         player?.pause()
@@ -65,10 +72,15 @@ class OpenAISpeechSynthesizerStore: ObservableObject {
     func play() {
         player?.play()
     }
-
-    func waitUntilSpeakingIsDone() async {
-        if speakingText != "" {
-            await waitForAudioToFinishPlaying()
+    
+    func waitForAudioToFinishPlaying() async {
+        guard !speakingText.isEmpty else { return }
+        
+        await withCheckedContinuation { continuation in
+            self.continuation = continuation
+            audioPlayerDelegate.onFinish = { [weak self] in
+                self?.audioPlayerFinishedPlaying()
+            }
         }
     }
 }
@@ -116,17 +128,16 @@ private extension OpenAISpeechSynthesizerStore {
             player?.delegate = audioPlayerDelegate
             player?.play()
             await waitForAudioToFinishPlaying()
-            speakingText = ""
         } catch {
             setError(message: "Error playing audio: \(error.localizedDescription)")
         }
     }
     
-    func waitForAudioToFinishPlaying() async {
-        await withCheckedContinuation { continuation in
-            audioPlayerDelegate.onFinish = {
-                continuation.resume()
-            }
+    func audioPlayerFinishedPlaying() {
+        if let continuation = continuation {
+            self.continuation = nil
+            speakingText = ""
+            continuation.resume()
         }
     }
     

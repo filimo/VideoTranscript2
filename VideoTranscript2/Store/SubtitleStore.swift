@@ -105,6 +105,8 @@ class SubtitleStore: ObservableObject {
     }
 
     @Storage("currentTime") var currentTime: Double = 0
+    
+    private var stopPlayingTask: Task<Void, Never>? = nil
 }
 
 extension SubtitleStore {
@@ -212,12 +214,25 @@ extension SubtitleStore {
         // Calculate the duration of the subtitle
         let duration = subtitle.endTime - startTime
 
+        stopPlayingTask?.cancel()
+
         seek(startTime: startTime)
         isPlaying = true
 
-        // Set a timer to stop the player after the subtitle has finished
-        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
-            self.isPlaying = false
+        stopPlayingTask = Task {
+            await stopPlaying(after: duration)
+        }
+    }
+
+    private func stopPlaying(after duration: TimeInterval) async {
+        // Set a delay to stop the player after the subtitle has finished
+        do {
+            try await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000)) // duration в секундах, конвертируем в наносекунды
+            if !Task.isCancelled {
+                isPlaying = false
+            }
+        } catch {
+            // Обработка ошибки, если задача была отменена
         }
     }
 }

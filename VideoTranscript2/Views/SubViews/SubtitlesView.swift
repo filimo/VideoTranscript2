@@ -58,7 +58,7 @@ private extension SubtitlesView {
     }
         
     func waitForSpeechToEnd(isPlaying: Bool, id: Int) async {
-        await speechSynthesizer.waitUntilSpeakingIsDone()
+        await speechSynthesizer.waitForAudioToFinishPlaying()
         
         if Task.isCancelled { return }  // Проверка на отмену задачи
             

@@ -44,8 +44,8 @@ struct NavigationButtons: View {
             .keyboardShortcut("d", modifiers: [])
 
             Button("Repeat") {
-                speechSynthesizer.stop()
                 viewModel.repeatSubtitle()
+                speechSynthesizer.replay()
             }
             .keyboardShortcut("r", modifiers: [])
 
