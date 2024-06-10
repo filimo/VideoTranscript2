@@ -19,10 +19,7 @@ struct LoadVideoButton: View {
             Task {
                 if let url = await FileHelper.openFile(allowedContentTypes: [UTType.movie, .mp3]) {
                     subtitleStore.videoURL = url
-
                     lastVideoURL = url
-
-                    updateWindowTitle()
                 }
             }
         }
@@ -57,14 +54,6 @@ struct LoadVideoButton: View {
                 }
             }
         }
-        .onAppear {
-            updateWindowTitle()
-        }
-    }
-
-    private func updateWindowTitle() {
-        if let lastVideoURL {
-            NSApplication.shared.windows.first?.title = "VideoTranscript2 - \(lastVideoURL.path)"
-        }
+        .navigationTitle("VideoTranscript2 - \(lastVideoURL?.path ?? "")")
     }
 }
