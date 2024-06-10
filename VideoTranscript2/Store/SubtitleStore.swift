@@ -14,6 +14,19 @@ import SwiftUI
 class SubtitleStore: ObservableObject {
     @AppStorage("playbackSpeed") var playbackSpeed: Double = 1.0
 
+    @Storage("videoURLBookmark") private var videoURLBookmark: Data? = nil
+    @Storage("originalSubtitlesBookmark") private var originalSubtitlesBookmark: Data? = nil
+    @Storage("translatedSubtitlesBookmark") private var translatedSubtitlesBookmark: Data? = nil
+
+    var videoURL: URL? {
+        get {
+            return fetchURL(from: videoURLBookmark)
+        }
+        set {
+            videoURLBookmark = storeURL(newValue)
+        }
+    }
+
     @Storage("originalSubtitles") var originalSubtitles: [Subtitle] = [] {
         willSet {
             objectWillChange.send()
@@ -32,6 +45,48 @@ class SubtitleStore: ObservableObject {
         }
     }
 
+    @Published var activeId: Int = 0 {
+        didSet {
+            print("activeId didSet", activeId)
+            debounceActiveIdSubject.send(activeId)
+        }
+    }
+
+    @Published var isLoadingOriginal = false
+    @Published var isLoadingTranslated = false
+
+    @Published var player: AVPlayer? = nil
+    @Published var timeObserverToken: Any? = nil
+
+    @Published var isPlaying = false
+
+    @Storage("currentTime") var currentTime: Double = 0
+
+    private var stopPlayingTask: Task<Void, Never>?
+    private var cancellables = Set<AnyCancellable>()
+
+    private var debounceActiveIdSubject = PassthroughSubject<Int, Never>()
+
+    init() {
+        $isPlaying
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isPlaying in
+                self?.handleIsPlayingChange(isPlaying)
+            }
+            .store(in: &cancellables)
+    }
+}
+
+extension SubtitleStore {
+    var debounceActiveId: some Publisher<Int, Never> {
+        debounceActiveIdSubject
+//            .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+}
+
+extension SubtitleStore {
     var subtitles2: [Subtitle] {
         return originalSubtitles.map { item in
             if let text = translatedSubtitles.first(where: { $0.id == item.id })?.text {
@@ -47,75 +102,6 @@ class SubtitleStore: ObservableObject {
         }
     }
 
-    @Published var activeId: Int = 0 {
-        didSet {
-            print("activeId didSet", activeId)
-            debounceActiveIdSubject.send(activeId)
-        }
-    }
-
-    private var debounceActiveIdSubject = PassthroughSubject<Int, Never>()
-    var debounceActiveId: some Publisher<Int, Never> {
-        debounceActiveIdSubject
-//            .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
-            .removeDuplicates()
-            .eraseToAnyPublisher()
-    }
-
-    @Published var isLoadingOriginal = false
-    @Published var isLoadingTranslated = false
-
-    @Storage("videoURLBookmark") private var videoURLBookmark: Data? = nil
-    var videoURL: URL? {
-        get {
-            guard let bookmarkData = videoURLBookmark else { return nil }
-            var isStale = false
-            let url = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &isStale)
-            if isStale {
-                // Handle stale bookmark here
-                print("The bookmark is stale.")
-                videoURLBookmark = nil
-            }
-
-            return url
-        }
-        set {
-            if let url = newValue {
-                do {
-                    setPlayer(videoURL: url)
-                    let bookmarkData = try url.bookmarkData()
-                    videoURLBookmark = bookmarkData
-                } catch {
-                    print("Failed to create bookmark for \(url): \(error)")
-                    videoURLBookmark = nil
-                }
-            } else {
-                videoURLBookmark = nil
-            }
-        }
-    }
-
-    @Published var player: AVPlayer? = nil
-    @Published var timeObserverToken: Any? = nil
-
-    @Published var isPlaying = false
-
-    @Storage("currentTime") var currentTime: Double = 0
-
-    private var stopPlayingTask: Task<Void, Never>?
-    private var cancellables = Set<AnyCancellable>()
-
-    init() {
-        $isPlaying
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] isPlaying in
-                self?.handleIsPlayingChange(isPlaying)
-            }
-            .store(in: &cancellables)        
-    }
-}
-
-extension SubtitleStore {
     func setPlayer(videoURL: URL?) {
         if let urlAsset = player?.currentItem?.asset as? AVURLAsset {
             let url = urlAsset.url
@@ -129,7 +115,7 @@ extension SubtitleStore {
             }
 
             player = AVPlayer(url: videoURL)
-            player?.volume = 0.1
+            player?.volume = 0.05
 
             let interval = CMTime(value: 1, timescale: 2) // every tenth of a second, say
             if let player {
@@ -212,6 +198,30 @@ extension SubtitleStore {
 
         stopPlayingTask = Task {
             await stopPlaying(after: duration)
+        }
+    }
+}
+
+private extension SubtitleStore {
+    private func fetchURL(from bookmark: Data?) -> URL? {
+        guard let bookmarkData = bookmark else { return nil }
+        var isStale = false
+        let url = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &isStale)
+        if isStale {
+            print("The bookmark is stale.")
+            return nil
+        }
+        return url
+    }
+
+    private func storeURL(_ url: URL?) -> Data? {
+        guard let url = url else { return nil }
+        do {
+            setPlayer(videoURL: url)
+            return try url.bookmarkData()
+        } catch {
+            print("Failed to create bookmark for \(url): \(error)")
+            return nil
         }
     }
 }

@@ -8,43 +8,22 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject private var subtitleStore: SubtitleStore
+    @State var isPresented = true
 
     var body: some View {
-        HStack {
-            VStack {
-                PlayerView(player: subtitleStore.player)
-
-                Text(subtitleStore.getCurrentOriginalSubtitle())
-                    .font(.title3)
-                    .textSelection(.enabled)
-
-                Text(subtitleStore.getCurrentTranlatatedSubtitle())
-                    .font(.title3)
-                    .textSelection(.enabled)
-
-                HStack {
-                    if subtitleStore.showTwoSubtitlesColumns {
-                        SubtitlesView(subtitles: subtitleStore.originalSubtitles)
-
-                        SubtitlesView(subtitles: subtitleStore.translatedSubtitles)
-
-                    } else {
-                        SubtitlesView(subtitles: subtitleStore.subtitles2)
+        PlayerWithSubtitlesView()
+            .inspector(isPresented: $isPresented) {
+                ActionsView()
+                    .inspectorColumnWidth(min: 150, ideal: 225, max: 400)
+            }
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button(action: {
+                        isPresented.toggle()
+                    }) {
+                        Image(systemName: isPresented ? "eye.slash" : "eye")
                     }
                 }
-                .frame(maxHeight: 250)
             }
-
-            ActionsView()
-        }
-        .onChange(of: subtitleStore.playbackSpeed) { newValue in
-            subtitleStore.player?.rate = Float(newValue)
-        }
-        .onAppear {
-            if let videoURL = subtitleStore.videoURL {
-                subtitleStore.setPlayer(videoURL: videoURL)
-            }
-        }
     }
 }
