@@ -10,7 +10,8 @@ import SwiftUI
 
 struct SubtitlesView: View {
     @EnvironmentObject private var speechSynthesizer: OpenAISpeechSynthesizerStore
-    @ObservedObject var viewModel: SubtitleStore
+    @EnvironmentObject private var subtitleStore: SubtitleStore
+
     var subtitles: [Subtitle]
     
     @State private var currentTask: Task<Void, Never>? = nil
@@ -22,18 +23,18 @@ struct SubtitlesView: View {
                     Text(subtitle.text)
                         .font(.body)
                         .id(subtitle.id)
-                        .underline(subtitle.id == viewModel.activeId)
+                        .underline(subtitle.id == subtitleStore.activeId)
                         .onTapGesture {
                             speechSynthesizer.stop()
-                            viewModel.isPlaying = false
+                            subtitleStore.isPlaying = false
                             
                             // Seek the player to the start time of the subtitle
-                            viewModel.seek(startTime: subtitle.startTime)
-                            viewModel.activeId = subtitle.id
+                            subtitleStore.seek(startTime: subtitle.startTime)
+                            subtitleStore.activeId = subtitle.id
                         }
                 }
             }
-            .onReceive(viewModel.debounceActiveId) { id in
+            .onReceive(subtitleStore.debounceActiveId) { id in
                 handleActiveIdChange(id, scrollProxy: scrollProxy)
             }
         }
@@ -42,13 +43,13 @@ struct SubtitlesView: View {
  
 private extension SubtitlesView {
     func handleActiveIdChange(_ id: Int, scrollProxy: ScrollViewProxy) {
-        let isPlaying = viewModel.isPlaying
+        let isPlaying = subtitleStore.isPlaying
             
         print("onReceive debounceActiveId", id)
         scrollProxy.scrollTo(id - 4, anchor: .top)
             
         if speechSynthesizer.speakingText != "" {
-            viewModel.isPlaying = false
+            subtitleStore.isPlaying = false
         }
             
         currentTask?.cancel() // Отмена предыдущей задачи, если она существует
@@ -63,10 +64,10 @@ private extension SubtitlesView {
         if Task.isCancelled { return }  // Проверка на отмену задачи
             
         if isPlaying {
-            viewModel.isPlaying = true
+            subtitleStore.isPlaying = true
         }
             
-        if let text = viewModel.translatedSubtitles.first(where: { $0.id == id })?.text {
+        if let text = subtitleStore.translatedSubtitles.first(where: { $0.id == id })?.text {
             speechSynthesizer.stop()
             await speechSynthesizer.synthesizeSpeech(textToSynthesize: text)
         }

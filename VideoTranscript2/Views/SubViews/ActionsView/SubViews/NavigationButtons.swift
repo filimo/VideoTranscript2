@@ -9,7 +9,7 @@ import SwiftUI
 
 struct NavigationButtons: View {
     @EnvironmentObject private var speechSynthesizer: OpenAISpeechSynthesizerStore
-    @ObservedObject var subtitleStore: SubtitleStore
+    @EnvironmentObject private var subtitleStore: SubtitleStore
 
     var body: some View {
         GroupBox {

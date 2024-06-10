@@ -15,6 +15,7 @@ struct VideoTranscript2App: App {
         WindowGroup {
             ContentView()
                 .environmentObject(OpenAISpeechSynthesizerStore())
+                .environmentObject(SubtitleStore())
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
                 .onAppear{
                     print(Bundle.main.bundlePath)

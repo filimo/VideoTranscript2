@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var subtitleStore = SubtitleStore()
+    @EnvironmentObject private var subtitleStore: SubtitleStore
 
     var body: some View {
         HStack {
@@ -25,18 +25,18 @@ struct ContentView: View {
 
                 HStack {
                     if subtitleStore.showTwoSubtitlesColumns {
-                        SubtitlesView(viewModel: subtitleStore, subtitles: subtitleStore.originalSubtitles)
+                        SubtitlesView(subtitles: subtitleStore.originalSubtitles)
 
-                        SubtitlesView(viewModel: subtitleStore, subtitles: subtitleStore.translatedSubtitles)
+                        SubtitlesView(subtitles: subtitleStore.translatedSubtitles)
 
                     } else {
-                        SubtitlesView(viewModel: subtitleStore, subtitles: subtitleStore.subtitles2)
+                        SubtitlesView(subtitles: subtitleStore.subtitles2)
                     }
                 }
                 .frame(maxHeight: 250)
             }
 
-            ActionsView(subtitleStore: subtitleStore)
+            ActionsView()
         }
         .onChange(of: subtitleStore.playbackSpeed) { newValue in
             subtitleStore.player?.rate = Float(newValue)

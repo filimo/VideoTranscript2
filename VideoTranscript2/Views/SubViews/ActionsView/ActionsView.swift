@@ -9,14 +9,13 @@ import SwiftUI
 
 struct ActionsView: View {
     @EnvironmentObject private var speechSynthesizer: OpenAISpeechSynthesizerStore
-    
-    @ObservedObject var subtitleStore: SubtitleStore
+    @EnvironmentObject private var subtitleStore: SubtitleStore
 
     var body: some View {
         VStack {
-            LoadVideoButton(subtitleStore: subtitleStore)
+            LoadVideoButton()
 
-            NavigationButtons(subtitleStore: subtitleStore)
+            NavigationButtons()
 
             Stepper("Speed \(subtitleStore.playbackSpeed, specifier: "%.2f")", value: $subtitleStore.playbackSpeed, in: 0.5 ... 2.0, step: 0.05)
                 .frame(maxWidth: 100)

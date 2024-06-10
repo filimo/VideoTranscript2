@@ -10,7 +10,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct LoadVideoButton: View {
-    @ObservedObject var subtitleStore: SubtitleStore
+    @EnvironmentObject private var subtitleStore: SubtitleStore
+    
     @AppStorage("lastVideoURL") var lastVideoURL: URL?
 
     var body: some View {
