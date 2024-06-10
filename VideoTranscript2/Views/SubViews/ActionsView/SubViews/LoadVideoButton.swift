@@ -11,12 +11,17 @@ import UniformTypeIdentifiers
 
 struct LoadVideoButton: View {
     @ObservedObject var subtitleStore: SubtitleStore
+    @AppStorage("lastVideoURL") var lastVideoURL: URL?
 
     var body: some View {
         Button("Load Video") {
             Task {
                 if let url = await FileHelper.openFile(allowedContentTypes: [UTType.movie, .mp3]) {
                     subtitleStore.videoURL = url
+
+                    lastVideoURL = url
+
+                    updateWindowTitle()
                 }
             }
         }
@@ -50,6 +55,15 @@ struct LoadVideoButton: View {
                     }
                 }
             }
+        }
+        .onAppear {
+            updateWindowTitle()
+        }
+    }
+
+    private func updateWindowTitle() {
+        if let lastVideoURL {
+            NSApplication.shared.windows.first?.title = "VideoTranscript2 - \(lastVideoURL.path)"
         }
     }
 }
