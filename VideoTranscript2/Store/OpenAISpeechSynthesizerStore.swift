@@ -60,7 +60,6 @@ class OpenAISpeechSynthesizerStore: ObservableObject {
         isLoading = false
     }
 
-    
     func stop() {
         player?.stop()
         speakingText = ""
@@ -81,6 +80,9 @@ class OpenAISpeechSynthesizerStore: ObservableObject {
     
     func waitForAudioToFinishPlaying() async {
         guard !speakingText.isEmpty else { return }
+        
+        continuation?.resume()
+        continuation = nil
         
         await withCheckedContinuation { continuation in
             self.continuation = continuation
