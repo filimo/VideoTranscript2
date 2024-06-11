@@ -10,8 +10,9 @@ import Combine
 import IOKit.pwr_mgt
 import SwiftUI
 
-class AVPlayerObserver: ObservableObject {
-    @Published var isPlaying = false
+@Observable
+class AVPlayerObserver {
+    var isPlaying = false
     private var assertionID: IOPMAssertionID = 0
     private let reasonForActivity = "Playing video" as CFString
     private var cancellables = Set<AnyCancellable>()

@@ -9,7 +9,7 @@ import AVKit
 import SwiftUI
 
 struct PlayerView: View {
-    @StateObject private var playerObserver = AVPlayerObserver()
+    @State private var playerObserver = AVPlayerObserver()
     let player: AVPlayer?
 
     var body: some View {
@@ -30,4 +30,5 @@ struct PlayerView: View {
         }
     }
 }
+
 
