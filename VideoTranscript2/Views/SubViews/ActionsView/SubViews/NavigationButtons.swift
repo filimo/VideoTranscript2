@@ -14,20 +14,26 @@ struct NavigationButtons: View {
     var body: some View {
         GroupBox {
             Button("Previous") {
-                speechSynthesizer.stop()
-                subtitleStore.prevSubtitle()
+                Task {
+                    await audioPlayer.stop()
+                    subtitleStore.prevSubtitle()
+                }
             }
             .keyboardShortcut("a", modifiers: [])
 
             Button(action: {
-                subtitleStore.isPlaying.toggle()
-                if subtitleStore.isPlaying {
-                    speechSynthesizer.play()
+                subtitleStore.videoPlayer.isPlaying.toggle()
+                if subtitleStore.videoPlayer.isPlaying {
+                    Task {
+                        await audioPlayer.play()
+                    }
                 } else {
-                    speechSynthesizer.pause()
+                    Task {
+                        await audioPlayer.pause()
+                    }
                 }
             }) {
-                Text(subtitleStore.isPlaying ? "Pause" : "Play")
+                Text(subtitleStore.videoPlayer.isPlaying ? "Pause" : "Play")
             }
             .keyboardShortcut("s", modifiers: [])
 //            .keyboardShortcut("c", modifiers: [])
@@ -38,8 +44,10 @@ struct NavigationButtons: View {
 //            .keyboardShortcut("d", modifiers: [])
 
             Button("Next") {
-                speechSynthesizer.stop()
-                subtitleStore.nextSubtitle()
+                Task {
+                    await audioPlayer.stop()
+                    subtitleStore.nextSubtitle()
+                }
             }
             .keyboardShortcut("d", modifiers: [])
 
@@ -49,7 +57,9 @@ struct NavigationButtons: View {
             .keyboardShortcut("e", modifiers: [])
 
             Button("Repeat translate") {
-                speechSynthesizer.replay()
+                Task {
+                    await audioPlayer.replay()
+                }
             }
             .keyboardShortcut("r", modifiers: [])
         }

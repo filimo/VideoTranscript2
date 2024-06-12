@@ -17,13 +17,13 @@ struct ActionsView: View {
 
             NavigationButtons()
 
-            Stepper("Speed \(subtitleStore.playbackSpeed, specifier: "%.2f")", value: $subtitleStore.playbackSpeed, in: 0.5 ... 2.0, step: 0.05)
+            Stepper("Speed \(subtitleStore.videoPlayer.playbackSpeed, specifier: "%.2f")", value: subtitleStore.videoPlayer.$playbackSpeed, in: 0.5 ... 2.0, step: 0.05)
                 .frame(maxWidth: 100)
             
-            if speechSynthesizer.isCreatingSpeech {
-                Text("Creating\nSpeech...")
-                    .foregroundStyle(.red)
-            }
+//            if speechSynthesizer.isCreatingSpeech {
+//                Text("Creating\nSpeech...")
+//                    .foregroundStyle(.red)
+//            }
         }
         .padding(.trailing, 5)
     }

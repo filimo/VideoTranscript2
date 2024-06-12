@@ -25,16 +25,12 @@ struct SubtitlesView: View {
                         .id(subtitle.id)
                         .underline(subtitle.id == subtitleStore.activeId)
                         .onTapGesture {
-                            speechSynthesizer.stop()
-                            subtitleStore.isPlaying = false
-                            
-                            // Seek the player to the start time of the subtitle
-                            subtitleStore.seek(startTime: subtitle.startTime)
-                            subtitleStore.activeId = subtitle.id
+                            onTap(subtitle: subtitle)
                         }
                 }
             }
-            .onReceive(subtitleStore.debounceActiveId) { id in
+            .onChange(of: subtitleStore.activeId) { oldId, id  in
+                print("subtitleStore.videoPlayer.currentTime: ", oldId, id)
                 handleActiveIdChange(id, scrollProxy: scrollProxy)
             }
         }
@@ -42,33 +38,40 @@ struct SubtitlesView: View {
 }
  
 private extension SubtitlesView {
+    func onTap(subtitle: Subtitle) {
+        Task {
+            await audioPlayer.stop()
+    
+            // Seek the player to the start time of the subtitle
+            subtitleStore.videoPlayer.seek(startTime: subtitle.startTime)
+        }
+    }
+    
     func handleActiveIdChange(_ id: Int, scrollProxy: ScrollViewProxy) {
-        let isPlaying = subtitleStore.isPlaying
+        let isPlaying = subtitleStore.videoPlayer.isPlaying
             
         print("onReceive debounceActiveId", id)
         scrollProxy.scrollTo(id - 4, anchor: .top)
             
-        if speechSynthesizer.speakingText != "" {
-            subtitleStore.isPlaying = false
-        }
-            
-        currentTask?.cancel() // Отмена предыдущей задачи, если она существует
+        currentTask?.cancel()
         currentTask = Task {
+            await audioPlayer.stop()
             await waitForSpeechToEnd(isPlaying: isPlaying, id: id)
         }
     }
         
     func waitForSpeechToEnd(isPlaying: Bool, id: Int) async {
-        await speechSynthesizer.waitForAudioToFinishPlaying()
+        print("waitForSpeechToEnd:", isPlaying, id)
         
-        if Task.isCancelled { return }  // Проверка на отмену задачи
+        await audioPlayer.waitForAudioToFinishPlaying()
+        
+        if Task.isCancelled { return } // Проверка на отмену задачи
             
         if isPlaying {
-            subtitleStore.isPlaying = true
+            subtitleStore.videoPlayer.isPlaying = true
         }
             
         if let text = subtitleStore.translatedSubtitles.first(where: { $0.id == id })?.text {
-            speechSynthesizer.stop()
             await speechSynthesizer.synthesizeSpeech(textToSynthesize: text)
         }
     }

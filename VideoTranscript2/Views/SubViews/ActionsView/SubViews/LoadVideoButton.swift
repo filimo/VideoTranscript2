@@ -18,7 +18,7 @@ struct LoadVideoButton: View {
         Button("Load Video") {
             Task {
                 if let url = await FileHelper.openFile(allowedContentTypes: [UTType.movie, .mp3]) {
-                    subtitleStore.videoURL = url
+                    subtitleStore.videoPlayer.videoURL = url
                     lastVideoURL = url
                 }
             }

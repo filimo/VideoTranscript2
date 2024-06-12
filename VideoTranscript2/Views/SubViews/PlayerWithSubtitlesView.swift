@@ -11,7 +11,7 @@ struct PlayerWithSubtitlesView: View {
 
     var body: some View {
         VStack {
-            PlayerView(player: subtitleStore.player)
+            PlayerView(player: subtitleStore.videoPlayer.player)
 
             Text(subtitleStore.getCurrentOriginalSubtitle())
                 .font(.title3)
@@ -33,12 +33,12 @@ struct PlayerWithSubtitlesView: View {
             }
             .frame(maxHeight: 250)
         }
-        .onChange(of: subtitleStore.playbackSpeed) { newValue in
-            subtitleStore.player?.rate = Float(newValue)
+        .onChange(of: subtitleStore.videoPlayer.playbackSpeed) { newValue in
+            subtitleStore.videoPlayer.player?.rate = Float(newValue)
         }
         .onAppear {
-            if let videoURL = subtitleStore.videoURL {
-                subtitleStore.setPlayer(videoURL: videoURL)
+            if let videoURL = subtitleStore.videoPlayer.videoURL {
+                subtitleStore.videoPlayer.setPlayer(videoURL: videoURL)
             }
         }
     }
