@@ -9,11 +9,11 @@ import AVFoundation
 import OpenAI
 import SwiftUI
 
-@MainActor
+@Observable
 class OpenAISpeechSynthesizerStore: ObservableObject {
-    @Published var speakingText: String = ""
-    @Published var isLoading: Bool = false
-    @Published var errorMessage: String? {
+    var speakingText: String = ""
+    var isLoading: Bool = false
+    var errorMessage: String? {
         didSet {
             if let errorMessage {
                 print("Error:", errorMessage)
@@ -21,7 +21,7 @@ class OpenAISpeechSynthesizerStore: ObservableObject {
         }
     }
 
-    @Published var isCreatingSpeech: Bool = false
+    var isCreatingSpeech: Bool = false
     
     private let openAI: OpenAI
     private var player: AVAudioPlayer?
@@ -36,6 +36,8 @@ class OpenAISpeechSynthesizerStore: ObservableObject {
         self.openAI = OpenAI(apiToken: apiToken)
     }
     
+    
+    @MainActor
     func synthesizeSpeech(textToSynthesize: String) async {
         guard !textToSynthesize.isEmpty else { return }
             
@@ -78,6 +80,7 @@ class OpenAISpeechSynthesizerStore: ObservableObject {
         player?.play()
     }
     
+    @MainActor
     func waitForAudioToFinishPlaying() async {
         guard !speakingText.isEmpty else { return }
         

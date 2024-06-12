@@ -11,7 +11,7 @@ import Combine
 import Foundation
 import SwiftUI
 
-class SubtitleStore: ObservableObject {
+@MainActor class SubtitleStore: ObservableObject {
     @AppStorage("playbackSpeed") var playbackSpeed: Double = 1.0
 
     @Storage("videoURLBookmark") private var videoURLBookmark: Data? = nil
@@ -117,22 +117,12 @@ extension SubtitleStore {
             player = AVPlayer(url: videoURL)
             player?.volume = 0.05
 
-            let interval = CMTime(value: 1, timescale: 2) // every tenth of a second, say
+            let interval = CMTime(value: 1, timescale: 2) // every tenth of a second
             if let player {
                 timeObserverToken = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { _ in
-                    let currentTime = CMTimeGetSeconds(player.currentTime())
-                    self.currentTime = currentTime
-                    if let subtitle = self.originalSubtitles.first(where: {
-                        if $0.startTime < $0.endTime {
-                            return $0.startTime ... $0.endTime ~= (currentTime + 0.2)
-                        } else {
-                            return false
-                        }
-                    }) {
-                        if self.activeId != subtitle.id {
-                            print("Changed activeId", currentTime, subtitle)
-                            self.activeId = subtitle.id
-                        }
+                    Task { @MainActor in
+                        let currentTime = CMTimeGetSeconds(player.currentTime())
+                        self.updateSubtitle(at: currentTime)
                     }
                 }
 
@@ -203,7 +193,19 @@ extension SubtitleStore {
 }
 
 private extension SubtitleStore {
-    private func fetchURL(from bookmark: Data?) -> URL? {
+    func updateSubtitle(at currentTime: Double) {
+        self.currentTime = currentTime
+        if let subtitle = self.originalSubtitles.first(where: {
+            $0.startTime < $0.endTime ? $0.startTime...$0.endTime ~= (currentTime + 0.2) : false
+        }) {
+            if self.activeId != subtitle.id {
+                print("Changed activeId", currentTime, subtitle)
+                self.activeId = subtitle.id
+            }
+        }
+    }
+
+    func fetchURL(from bookmark: Data?) -> URL? {
         guard let bookmarkData = bookmark else { return nil }
         var isStale = false
         let url = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &isStale)
@@ -214,7 +216,7 @@ private extension SubtitleStore {
         return url
     }
 
-    private func storeURL(_ url: URL?) -> Data? {
+    func storeURL(_ url: URL?) -> Data? {
         guard let url = url else { return nil }
         do {
             setPlayer(videoURL: url)
