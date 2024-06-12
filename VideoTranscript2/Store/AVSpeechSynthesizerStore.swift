@@ -5,17 +5,28 @@
 //  Created by Viktor Kushnerov on 2.06.24.
 //
 import AVFoundation
+import Combine
 
-class AVSpeechSynthesizerStore: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
+@Observable
+class AVSpeechSynthesizerStore {
     private var synthesizer = AVSpeechSynthesizer()
     private let voice: AVSpeechSynthesisVoice?
     
-    @Published var speakingText: String = ""
+    private var cancellables = Set<AnyCancellable>()
     
-    override init() {
+    var speakingText: String = ""
+    
+    init() {
         self.voice = AVSpeechSynthesisVoice.speechVoices().first(where: { $0.name == "Milena" && $0.quality == .enhanced })
-        super.init()
-        synthesizer.delegate = self
+        
+        // Observe the isSpeaking property
+        synthesizer.publisher(for: \.isSpeaking)
+            .sink { [weak self] isSpeaking in
+                if !isSpeaking {
+                    self?.speakingText = ""
+                }
+            }
+            .store(in: &cancellables)
     }
     
     func speak(text: String) {
@@ -29,9 +40,6 @@ class AVSpeechSynthesizerStore: NSObject, ObservableObject, AVSpeechSynthesizerD
         synthesizer.stopSpeaking(at: .immediate)
         speakingText = ""
     }
-    
-    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        speakingText = ""
-    }
 }
+
 
