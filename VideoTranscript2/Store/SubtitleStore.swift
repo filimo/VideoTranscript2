@@ -11,10 +11,9 @@ import Combine
 import Foundation
 import SwiftUI
 
-
 @MainActor class SubtitleStore: ObservableObject {
     let videoPlayer = VideoPlayerManager()
-    
+
     @Storage("originalSubtitlesBookmark") private var originalSubtitlesBookmark: Data? = nil
     @Storage("translatedSubtitlesBookmark") private var translatedSubtitlesBookmark: Data? = nil
 
@@ -39,7 +38,6 @@ import SwiftUI
     @Published var activeId: Int = 0 {
         didSet {
             logger.info("activeId didSet \(self.activeId)")
-            debounceActiveIdSubject.send(activeId)
         }
     }
 
@@ -51,24 +49,12 @@ import SwiftUI
     private var stopPlayingTask: Task<Void, Never>?
     private var cancellables = Set<AnyCancellable>()
 
-    private var debounceActiveIdSubject = PassthroughSubject<Int, Never>()
-    
     init() {
         videoPlayer.$currentTime
             .sink { [weak self] currentTime in
                 self?.updateSubtitle(at: currentTime)
-                
             }
             .store(in: &cancellables)
-    }
-}
-
-extension SubtitleStore {
-    var debounceActiveId: some Publisher<Int, Never> {
-        debounceActiveIdSubject
-//            .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
-            .removeDuplicates()
-            .eraseToAnyPublisher()
     }
 }
 
@@ -143,11 +129,10 @@ private extension SubtitleStore {
         if let subtitle = originalSubtitles.first(where: {
             $0.startTime < $0.endTime ? $0.startTime ... $0.endTime ~= (currentTime + 0.2) : false
         }) {
+            logger.info("Changed activeId(\(self.activeId)) \(currentTime) \(subtitle.id) \(subtitle.text)")
             if activeId != subtitle.id {
-                logger.info("Changed activeId \(currentTime) \(subtitle.id) \(subtitle.text)")
                 activeId = subtitle.id
             }
         }
     }
 }
-

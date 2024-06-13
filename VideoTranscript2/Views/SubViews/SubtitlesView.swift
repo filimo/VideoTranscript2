@@ -55,18 +55,19 @@ private extension SubtitlesView {
             
         currentTask?.cancel()
         currentTask = Task {
-            await audioPlayer.stop()
             await waitForSpeechToEnd(isPlaying: isPlaying, id: id)
         }
     }
         
     func waitForSpeechToEnd(isPlaying: Bool, id: Int) async {
         logger.info("waitForSpeechToEnd: \(isPlaying) \(id)")
-        
-        await audioPlayer.waitForAudioToFinishPlaying()
-        
+
+        subtitleStore.videoPlayer.isPlaying = false
+
         if Task.isCancelled { return } // Проверка на отмену задачи
             
+        await audioPlayer.waitForAudioToFinishPlaying()
+
         if isPlaying {
             subtitleStore.videoPlayer.isPlaying = true
         }

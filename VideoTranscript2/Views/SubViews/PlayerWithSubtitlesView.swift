@@ -39,6 +39,7 @@ struct PlayerWithSubtitlesView: View {
         .onAppear {
             if let videoURL = subtitleStore.videoPlayer.videoURL {
                 subtitleStore.videoPlayer.setPlayer(videoURL: videoURL)
+                subtitleStore.videoPlayer.seekToSavedCurrentTime()
             }
         }
     }

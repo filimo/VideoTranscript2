@@ -15,7 +15,7 @@ class VideoPlayerManager: ObservableObject {
     @AppStorage("playbackSpeed") var playbackSpeed: Double = 1.0
 
     @Storage("currentTime") var currentTime: Double = 0
-    @Storage("videoURLBookmark") private var videoURLBookmark: Data? = nil
+    @Storage("videoURLBookmark") private(set) var videoURLBookmark: Data? = nil
 
     @Published var isPlaying = false
 
@@ -64,11 +64,13 @@ class VideoPlayerManager: ObservableObject {
                         self.currentTime = CMTimeGetSeconds(player.currentTime())
                     }
                 }
-
-                // Seek to the saved currentTime value
-                player.seek(to: CMTime(seconds: currentTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+                seekToSavedCurrentTime()
             }
         }
+    }
+
+    func seekToSavedCurrentTime() {
+        seek(startTime: currentTime)
     }
 
     func seek(startTime: TimeInterval) {

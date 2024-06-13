@@ -6,31 +6,69 @@
 //
 
 import XCTest
+import AVKit
+import Combine
 @testable import VideoTranscript2
 
-final class VideoTranscript2Tests: XCTestCase {
+class VideoPlayerManagerTests: XCTestCase {
+    var videoPlayerManager: VideoPlayerManager!
+    var testURL: URL!
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    @MainActor override func setUpWithError() throws {
+        videoPlayerManager = VideoPlayerManager()
+        testURL = URL(fileURLWithPath: "/Users/filimo/Downloads/ForWatch/WWDC/Swift concurrency/wwdc2022-110351_Eliminate data races using Swift Concurrency/wwdc2022-110351_hd.mp4")
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        videoPlayerManager = nil
+        testURL = nil
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
+    @MainActor func testSetPlayerWithValidURL() throws {
+        videoPlayerManager.setPlayer(videoURL: testURL)
+        XCTAssertEqual(videoPlayerManager.videoURL, testURL)
+        XCTAssertNotNil(videoPlayerManager.player)
     }
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
+    @MainActor func testPlayPause() throws {
+        videoPlayerManager.setPlayer(videoURL: testURL)
+        videoPlayerManager.play()
+        XCTAssertTrue(videoPlayerManager.isPlaying)
+        XCTAssertEqual(videoPlayerManager.player?.rate, Float(videoPlayerManager.playbackSpeed))
+
+        videoPlayerManager.pause()
+        XCTAssertFalse(videoPlayerManager.isPlaying)
+        XCTAssertEqual(videoPlayerManager.player?.rate, 0)
     }
 
+    @MainActor func testSeek() throws {
+        videoPlayerManager.setPlayer(videoURL: testURL)
+        videoPlayerManager.seek(startTime: 10)
+        XCTAssertEqual(videoPlayerManager.player!.currentTime().seconds, 10.2, accuracy: 0.1)
+    }
+
+    @MainActor func testStopPlaying() async throws {
+        videoPlayerManager.setPlayer(videoURL: testURL)
+        videoPlayerManager.play()
+        XCTAssertTrue(videoPlayerManager.isPlaying)
+
+        await videoPlayerManager.stopPlaying(after: 2)
+        XCTAssertFalse(videoPlayerManager.isPlaying)
+    }
+
+    @MainActor func testBookmarkHandling() throws {
+        videoPlayerManager.videoURL = testURL
+        XCTAssertEqual(videoPlayerManager.fetchURL(from: videoPlayerManager.videoURLBookmark), testURL)
+
+        let invalidBookmarkData = Data([0x00, 0x01, 0x02])
+        XCTAssertNil(videoPlayerManager.fetchURL(from: invalidBookmarkData))
+    }
+
+    @MainActor func testPlaybackSpeedChange() throws {
+        videoPlayerManager.playbackSpeed = 1.5
+        videoPlayerManager.setPlayer(videoURL: testURL)
+        videoPlayerManager.play()
+        XCTAssertEqual(videoPlayerManager.player?.rate, 1.5)
+    }
 }
+
