@@ -44,7 +44,7 @@ actor AudioCacheManager {
     }
     
     private func generateNewAudio(text: String, cacheURL: URL) async throws -> URL {
-        print("generateNewAudio:", text)
+        logger.info("generateNewAudio: \(text)")
         
         let query = AudioSpeechQuery(model: .tts_1, input: text, voice: .alloy, responseFormat: .mp3, speed: 1.1)
         let audioResult = try await openAI.audioCreateSpeech(query: query)
@@ -58,18 +58,18 @@ actor AudioCacheManager {
         if let urlError = error as? URLError {
             switch urlError.code {
             case .notConnectedToInternet:
-                print("No internet connection. Please check your internet settings.")
+                logger.error("No internet connection. Please check your internet settings.")
             case .cannotFindHost:
-                print("Cannot find host. Please check your URL.")
+                logger.error("Cannot find host. Please check your URL.")
             case .timedOut:
-                print("Request timed out. Please try again.")
+                logger.error("Request timed out. Please try again.")
             default:
-                print("An error occurred: \(urlError.localizedDescription)")
+                logger.error("An error occurred: \(urlError.localizedDescription)")
             }
         } else if let openAIError = error as? OpenAIError {
-            print("OpenAI error: \(openAIError.localizedDescription)")
+            logger.error("OpenAI error: \(openAIError.localizedDescription)")
         } else {
-            print("Error creating speech: \(error.localizedDescription)")
+            logger.error("Error creating speech: \(error.localizedDescription)")
         }
     }
 }

@@ -22,7 +22,7 @@ actor AudioPlayerActor {
             
             play()
         } catch {
-            print("Error playing audio: \(error.localizedDescription)")
+            logger.error("Error playing audio: \(error.localizedDescription)")
         }
     }
     
@@ -31,7 +31,7 @@ actor AudioPlayerActor {
     }
     
     func stop() {
-        print("Called AVAudioPlayer.stop()")
+        logger.info("Called AVAudioPlayer.stop()")
         player?.stop()
         cancel()
     }
@@ -68,14 +68,14 @@ class AudioPlayerDelegate: NSObject, AVAudioPlayerDelegate {
     var onFinish: (() -> Void) = {}
 
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        print("audioPlayerDidFinishPlaying:", flag)
+        logger.info("audioPlayerDidFinishPlaying: \(flag)")
         Task {
             await audioPlayer.cancel()
         }
     }
     
     func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
-        print("Audio player decode error: \(error?.localizedDescription ?? "unknown error")")
+        logger.error("Audio player decode error: \(error?.localizedDescription ?? "unknown error")")
         Task {
             await audioPlayer.cancel()
         }

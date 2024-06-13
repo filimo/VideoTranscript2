@@ -24,7 +24,7 @@ actor OpenAISpeechSynthesizerStore: ObservableObject {
     func synthesizeSpeech(textToSynthesize: String) async {
         guard !textToSynthesize.isEmpty else { return }
 
-        print("Getting audio for text: \(textToSynthesize)")
+        logger.info("Getting audio for text: \(textToSynthesize)")
         if let cacheURL = await audioCacheManager.getOrGenerateAudio(for: textToSynthesize) {
             await audioPlayer.playAudio(url: cacheURL)
         }

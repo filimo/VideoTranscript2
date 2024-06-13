@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+import os
+
+let logger = Logger()
 
 @main
 struct VideoTranscript2App: App {
@@ -18,7 +21,7 @@ struct VideoTranscript2App: App {
                 .environmentObject(SubtitleStore())
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
                 .onAppear{
-                    print(Bundle.main.bundlePath)
+                    logger.error("\(Bundle.main.bundlePath)")
                 }
         }
     }

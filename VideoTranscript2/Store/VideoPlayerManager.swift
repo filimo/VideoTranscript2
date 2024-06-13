@@ -72,7 +72,7 @@ class VideoPlayerManager: ObservableObject {
     }
 
     func seek(startTime: TimeInterval) {
-        print(#function, startTime)
+        logger.info("\(startTime)")
 
         let additionalTime = 0.2
         let startTimeInSeconds = Double(startTime) + additionalTime
@@ -111,7 +111,7 @@ class VideoPlayerManager: ObservableObject {
     }
 
     func handleIsPlayingChange(_ isPlaying: Bool) {
-        print("isPlaying", isPlaying)
+        logger.info("isPlaying \(isPlaying)")
 
         if isPlaying {
             play()
@@ -127,7 +127,7 @@ extension VideoPlayerManager {
         var isStale = false
         let url = try? URL(resolvingBookmarkData: bookmarkData, bookmarkDataIsStale: &isStale)
         if isStale {
-            print("The bookmark is stale.")
+            logger.info("The bookmark is stale.")
             return nil
         }
         return url
@@ -139,7 +139,7 @@ extension VideoPlayerManager {
             setPlayer(videoURL: url)
             return try url.bookmarkData()
         } catch {
-            print("Failed to create bookmark for \(url): \(error)")
+            logger.error("Failed to create bookmark for \(url): \(error)")
             return nil
         }
     }

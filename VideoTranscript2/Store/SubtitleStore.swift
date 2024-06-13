@@ -38,7 +38,7 @@ import SwiftUI
 
     @Published var activeId: Int = 0 {
         didSet {
-            print("activeId didSet", activeId)
+            logger.info("activeId didSet \(self.activeId)")
             debounceActiveIdSubject.send(activeId)
         }
     }
@@ -144,7 +144,7 @@ private extension SubtitleStore {
             $0.startTime < $0.endTime ? $0.startTime ... $0.endTime ~= (currentTime + 0.2) : false
         }) {
             if activeId != subtitle.id {
-                print("Changed activeId", currentTime, subtitle)
+                logger.info("Changed activeId \(currentTime) \(subtitle.id) \(subtitle.text)")
                 activeId = subtitle.id
             }
         }

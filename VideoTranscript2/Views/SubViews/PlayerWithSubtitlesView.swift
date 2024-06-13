@@ -33,7 +33,7 @@ struct PlayerWithSubtitlesView: View {
             }
             .frame(maxHeight: 250)
         }
-        .onChange(of: subtitleStore.videoPlayer.playbackSpeed) { newValue in
+        .onChange(of: subtitleStore.videoPlayer.playbackSpeed) { _, newValue in
             subtitleStore.videoPlayer.player?.rate = Float(newValue)
         }
         .onAppear {

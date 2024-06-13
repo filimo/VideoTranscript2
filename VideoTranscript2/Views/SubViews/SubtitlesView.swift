@@ -29,8 +29,8 @@ struct SubtitlesView: View {
                         }
                 }
             }
-            .onChange(of: subtitleStore.activeId) { oldId, id  in
-                print("subtitleStore.videoPlayer.currentTime: ", oldId, id)
+            .onChange(of: subtitleStore.activeId) { oldId, id in
+                logger.info("subtitleStore.videoPlayer.currentTime: \(oldId) \(id)")
                 handleActiveIdChange(id, scrollProxy: scrollProxy)
             }
         }
@@ -50,7 +50,7 @@ private extension SubtitlesView {
     func handleActiveIdChange(_ id: Int, scrollProxy: ScrollViewProxy) {
         let isPlaying = subtitleStore.videoPlayer.isPlaying
             
-        print("onReceive debounceActiveId", id)
+        logger.info("onReceive debounceActiveId \(id)")
         scrollProxy.scrollTo(id - 4, anchor: .top)
             
         currentTask?.cancel()
@@ -61,7 +61,7 @@ private extension SubtitlesView {
     }
         
     func waitForSpeechToEnd(isPlaying: Bool, id: Int) async {
-        print("waitForSpeechToEnd:", isPlaying, id)
+        logger.info("waitForSpeechToEnd: \(isPlaying) \(id)")
         
         await audioPlayer.waitForAudioToFinishPlaying()
         
