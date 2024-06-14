@@ -12,6 +12,8 @@ import SwiftUI
 let audioPlayer = AudioPlayerActor()
 
 actor OpenAISpeechSynthesizerStore: ObservableObject {
+    @MainActor @Published var isCreatingSpeech = false
+
     private let audioCacheManager: AudioCacheManager
 
     init() {
@@ -25,7 +27,9 @@ actor OpenAISpeechSynthesizerStore: ObservableObject {
         guard !textToSynthesize.isEmpty else { return }
 
         logger.info("Getting audio for text: \(textToSynthesize)")
+        await MainActor.run { isCreatingSpeech = true }
         if let cacheURL = await audioCacheManager.getOrGenerateAudio(for: textToSynthesize) {
+            await MainActor.run { isCreatingSpeech = false }
             await audioPlayer.playAudio(url: cacheURL)
         }
     }

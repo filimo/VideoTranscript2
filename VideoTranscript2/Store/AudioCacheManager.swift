@@ -15,26 +15,37 @@ actor AudioCacheManager {
     }
 
     func getOrGenerateAudio(for text: String) async -> URL? {
-        let cacheURL = getCacheURL(for: text)
-
         do {
-            if !FileManager.default.fileExists(atPath: cacheURL.path) {
-                // Попробуем найти кэш с удаленным непригодным для чтения текстом
-                let alternativeCacheURL = getCacheURL(for: text.removeUnreadableText())
-                if FileManager.default.fileExists(atPath: alternativeCacheURL.path) {
-                    return alternativeCacheURL
-                } else {
-                    // Генерация нового аудио
-                    return try await generateNewAudio(text: text, cacheURL: cacheURL)
-                }
+            if let cacheURL = getCacheURLIfExists(for: text) {
+                return cacheURL
+            } else {
+                let cacheURL = getCacheURL(for: text)
+                return try await generateNewAudio(text: text, cacheURL: cacheURL)
             }
         } catch {
             handleNetworkError(error)
-
             return nil
         }
+    }
 
-        return cacheURL
+    func getCacheURLIfExists(for text: String) -> URL? {
+        let cacheURL = getCacheURL(for: text)
+        let fileManager = FileManager.default
+
+        if fileManager.fileExists(atPath: cacheURL.path) {
+            logger.info("Cache available for text: \(text)")
+            return cacheURL
+        }
+
+        logger.info("Cache not found for text: \(text). Checking alternative.")
+        let alternativeCacheURL = getCacheURL(for: text.removeUnreadableText())
+        if fileManager.fileExists(atPath: alternativeCacheURL.path) {
+            logger.info("Alternative cache available for text: \(text.removeUnreadableText())")
+            return alternativeCacheURL
+        }
+
+        logger.info("Alternative cache not found for text: \(text.removeUnreadableText())")
+        return nil
     }
 
     private func getCacheURL(for text: String) -> URL {
@@ -44,13 +55,26 @@ actor AudioCacheManager {
     }
 
     private func generateNewAudio(text: String, cacheURL: URL) async throws -> URL {
-        logger.info("generateNewAudio: \(text)")
+        logger.info("Generating new audio for text: \(text)")
 
         let query = AudioSpeechQuery(model: .tts_1, input: text, voice: .alloy, responseFormat: .mp3, speed: 1.1)
-        let audioResult = try await openAI.audioCreateSpeech(query: query)
-        let audioData = audioResult.audio
-        try audioData.write(to: cacheURL)
+        let audioResult: AudioSpeechResult
+        do {
+            audioResult = try await openAI.audioCreateSpeech(query: query)
+        } catch {
+            logger.error("Failed to create audio via OpenAI: \(error.localizedDescription)")
+            throw error
+        }
 
+        do {
+            let audioData = audioResult.audio
+            try audioData.write(to: cacheURL)
+        } catch {
+            logger.error("Failed to write audio data to cache: \(error.localizedDescription)")
+            throw error
+        }
+
+        logger.info("Successfully generated and cached audio for text: \(text)")
         return cacheURL
     }
 
