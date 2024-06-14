@@ -11,19 +11,32 @@ import SwiftUI
 
 actor OpenAISpeechSynthesizerStore: ObservableObject {
     @MainActor @Published var isCreatingSpeech = false
+    @MainActor @Published var openAI_ApiToken = "none"
 
     let audioPlayer = AudioPlayerActor()
 
-    private let audioCacheManager: AudioCacheManager
+    private var audioCacheManager: AudioCacheManager? = nil
 
-    init() {
-        guard let apiToken = KeychainHelper.retrieveTokenFromKeychain() else {
-            fatalError("API token not found in Keychain")
+    func restoreApiToken() async {
+        if let apiToken = KeychainHelper.retrieveTokenFromKeychain() {
+            await MainActor.run {
+                openAI_ApiToken = apiToken
+            }
+            audioCacheManager = AudioCacheManager(apiToken: apiToken)
         }
-        audioCacheManager = AudioCacheManager(apiToken: apiToken)
+    }
+
+    @MainActor func storeApiToken() async {
+        KeychainHelper.storeTokenInKeychain(token: openAI_ApiToken)
+        await restoreApiToken()
     }
 
     func synthesizeSpeech(textToSynthesize: String, isPlaying: Bool) async {
+        guard let audioCacheManager else {
+            audioLogger.warning("API token not found in Keychain")
+            return
+        }
+
         guard !textToSynthesize.isEmpty else { return }
 
         audioLogger.info("Getting audio for text: \(textToSynthesize)")

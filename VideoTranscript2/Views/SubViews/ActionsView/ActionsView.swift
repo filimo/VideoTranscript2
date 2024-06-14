@@ -32,6 +32,8 @@ struct ActionsView: View {
                 Text("Creating\nSpeech...")
                     .foregroundStyle(.red)
             }
+            
+            APIKeyInputView()
         }
         .padding(.trailing, 5)
     }

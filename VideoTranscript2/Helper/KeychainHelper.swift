@@ -9,7 +9,7 @@ import Foundation
 import Security
 
 enum KeychainHelper {
-    static func storeTokenInKeychain(token: String) -> Bool {
+    static func storeTokenInKeychain(token: String) {
         let data = Data(token.utf8)
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -17,9 +17,12 @@ enum KeychainHelper {
             kSecValueData as String: data,
             kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
         ]
-        SecItemDelete(query as CFDictionary) // Удалить существующий токен, если он уже есть
+
+        SecItemDelete(query as CFDictionary)
+
         let status = SecItemAdd(query as CFDictionary, nil)
-        return status == errSecSuccess
+
+        keychainLogger.warning("Store API token status: \(status.getOSStatusString())")
     }
 
     static func retrieveTokenFromKeychain() -> String? {
@@ -33,6 +36,8 @@ enum KeychainHelper {
         var item: CFTypeRef?
         let status = SecItemCopyMatching(query as CFDictionary, &item)
 
+        keychainLogger.warning("Retrieve API token status: \(status.getOSStatusString())")
+
         guard status == errSecSuccess, let data = item as? Data else {
             return nil
         }
@@ -40,7 +45,7 @@ enum KeychainHelper {
         return String(data: data, encoding: .utf8)
     }
 
-    static func updateTokenInKeychain(token: String) -> Bool {
+    static func updateTokenInKeychain(token: String) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: "openai_api_token",
@@ -51,6 +56,7 @@ enum KeychainHelper {
         ]
 
         let status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
-        return status == errSecSuccess
+
+        keychainLogger.warning("Update API token status: \(status.getOSStatusString())")
     }
 }

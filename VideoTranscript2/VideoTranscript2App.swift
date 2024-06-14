@@ -15,6 +15,7 @@ let subtitlesLogger = Logger(subsystem: subsystem, category: "Subtitles")
 let videoLogger = Logger(subsystem: subsystem, category: "Video")
 let audioLogger = Logger(subsystem: subsystem, category: "Audio")
 let sleepLogger = Logger(subsystem: subsystem, category: "Sleep")
+let keychainLogger = Logger(subsystem: subsystem, category: "Keychain")
 
 
 @main
