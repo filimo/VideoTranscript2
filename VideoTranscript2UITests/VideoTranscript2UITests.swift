@@ -8,7 +8,6 @@
 import XCTest
 
 final class VideoTranscript2UITests: XCTestCase {
-
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
 
@@ -27,7 +26,6 @@ final class VideoTranscript2UITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
 
-        
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
 

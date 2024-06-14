@@ -35,11 +35,7 @@ import SwiftUI
         }
     }
 
-    @Published var activeId: Int = 0 {
-        didSet {
-            logger.info("activeId didSet \(self.activeId)")
-        }
-    }
+    @Published var activeId: Int = 0
 
     @Published var isLoadingOriginal = false
     @Published var isLoadingTranslated = false
@@ -50,6 +46,12 @@ import SwiftUI
     private var cancellables = Set<AnyCancellable>()
 
     init() {
+        $activeId
+            .sink { activeId in
+                logger.info("Sink activeId \(activeId)")
+            }
+            .store(in: &cancellables)
+
         videoPlayer.$currentTime
             .sink { [weak self] currentTime in
                 self?.updateSubtitle(at: currentTime)

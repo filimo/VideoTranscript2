@@ -8,7 +8,6 @@
 import XCTest
 
 final class VideoTranscript2UITestsLaunchTests: XCTestCase {
-
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true
     }

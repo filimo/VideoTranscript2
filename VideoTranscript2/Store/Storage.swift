@@ -1,13 +1,13 @@
 
 //
-//  NavigationButtons.swift
+//  Storage.swift
 //  VideoTranscript2
 //
 //  Created by Viktor Kushnerov on 22.07.23.
 //
 
-import SwiftUI
 import Combine
+import SwiftUI
 
 @propertyWrapper
 struct Storage<T: Codable>: DynamicProperty {
@@ -40,11 +40,12 @@ struct Storage<T: Codable>: DynamicProperty {
         self.key = key
         self.defaultValue = defaultValue
         self.store = store
-        self.subject = CurrentValueSubject<T, Never>(defaultValue)
+        subject = CurrentValueSubject<T, Never>(defaultValue)
 
         if let data = store.object(forKey: key) as? Data,
-           let value = try? JSONDecoder().decode(T.self, from: data) {
-            self.subject.value = value
+           let value = try? JSONDecoder().decode(T.self, from: data)
+        {
+            subject.value = value
         }
     }
 }

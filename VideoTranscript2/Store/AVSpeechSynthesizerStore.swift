@@ -11,14 +11,14 @@ import Combine
 class AVSpeechSynthesizerStore {
     private var synthesizer = AVSpeechSynthesizer()
     private let voice: AVSpeechSynthesisVoice?
-    
+
     private var cancellables = Set<AnyCancellable>()
-    
+
     var speakingText: String = ""
-    
+
     init() {
-        self.voice = AVSpeechSynthesisVoice.speechVoices().first(where: { $0.name == "Milena" && $0.quality == .enhanced })
-        
+        voice = AVSpeechSynthesisVoice.speechVoices().first(where: { $0.name == "Milena" && $0.quality == .enhanced })
+
         // Observe the isSpeaking property
         synthesizer.publisher(for: \.isSpeaking)
             .sink { [weak self] isSpeaking in
@@ -28,18 +28,16 @@ class AVSpeechSynthesizerStore {
             }
             .store(in: &cancellables)
     }
-    
+
     func speak(text: String) {
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = voice
         synthesizer.speak(utterance)
         speakingText = text
     }
-    
+
     func stop() {
         synthesizer.stopSpeaking(at: .immediate)
         speakingText = ""
     }
 }
-
-

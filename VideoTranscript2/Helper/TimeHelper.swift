@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TimeHelper {
+enum TimeHelper {
     static func timeInterval(from timeString: String) -> TimeInterval? {
         let timeComponents = timeString.components(separatedBy: ":")
         guard timeComponents.count == 3 else { return nil }

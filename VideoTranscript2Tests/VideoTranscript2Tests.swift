@@ -5,10 +5,10 @@
 //  Created by Viktor Kushnerov on 16.07.23.
 //
 
-import XCTest
 import AVKit
 import Combine
 @testable import VideoTranscript2
+import XCTest
 
 class VideoPlayerManagerTests: XCTestCase {
     var videoPlayerManager: VideoPlayerManager!
@@ -71,4 +71,3 @@ class VideoPlayerManagerTests: XCTestCase {
         XCTAssertEqual(videoPlayerManager.player?.rate, 1.5)
     }
 }
-

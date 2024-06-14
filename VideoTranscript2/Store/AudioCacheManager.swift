@@ -9,14 +9,14 @@ import AVFoundation
 
 actor AudioCacheManager {
     private let openAI: OpenAI
-    
+
     init(apiToken: String) {
         openAI = OpenAI(apiToken: apiToken)
     }
 
     func getOrGenerateAudio(for text: String) async -> URL? {
         let cacheURL = getCacheURL(for: text)
-     
+
         do {
             if !FileManager.default.fileExists(atPath: cacheURL.path) {
                 // Попробуем найти кэш с удаленным непригодным для чтения текстом
@@ -30,30 +30,30 @@ actor AudioCacheManager {
             }
         } catch {
             handleNetworkError(error)
-            
+
             return nil
         }
-        
+
         return cacheURL
     }
-    
+
     private func getCacheURL(for text: String) -> URL {
         let cacheDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
         let fileName = text.sha256() + ".mp3"
         return cacheDirectory.appendingPathComponent(fileName)
     }
-    
+
     private func generateNewAudio(text: String, cacheURL: URL) async throws -> URL {
         logger.info("generateNewAudio: \(text)")
-        
+
         let query = AudioSpeechQuery(model: .tts_1, input: text, voice: .alloy, responseFormat: .mp3, speed: 1.1)
         let audioResult = try await openAI.audioCreateSpeech(query: query)
         let audioData = audioResult.audio
         try audioData.write(to: cacheURL)
-        
+
         return cacheURL
     }
-    
+
     func handleNetworkError(_ error: Error) {
         if let urlError = error as? URLError {
             switch urlError.code {

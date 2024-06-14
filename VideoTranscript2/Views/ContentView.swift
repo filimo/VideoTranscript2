@@ -1,5 +1,5 @@
 //
-//  NavigationButtons.swift
+//  ContentView.swift
 //  VideoTranscript2
 //
 //  Created by Viktor Kushnerov on 22.07.23.

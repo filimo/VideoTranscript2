@@ -1,5 +1,5 @@
 //
-//  NavigationButtons.swift
+//  LoadVideoButton.swift
 //  VideoTranscript2
 //
 //  Created by Viktor Kushnerov on 22.07.23.
@@ -11,7 +11,7 @@ import UniformTypeIdentifiers
 
 struct LoadVideoButton: View {
     @EnvironmentObject private var subtitleStore: SubtitleStore
-    
+
     @AppStorage("lastVideoURL") var lastVideoURL: URL?
 
     var body: some View {

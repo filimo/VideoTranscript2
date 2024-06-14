@@ -8,14 +8,14 @@
 import Foundation
 import Security
 
-struct KeychainHelper {
+enum KeychainHelper {
     static func storeTokenInKeychain(token: String) -> Bool {
         let data = Data(token.utf8)
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: "openai_api_token",
             kSecValueData as String: data,
-            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
         ]
         SecItemDelete(query as CFDictionary) // Удалить существующий токен, если он уже есть
         let status = SecItemAdd(query as CFDictionary, nil)
@@ -27,7 +27,7 @@ struct KeychainHelper {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: "openai_api_token",
             kSecReturnData as String: kCFBooleanTrue!,
-            kSecMatchLimit as String: kSecMatchLimitOne
+            kSecMatchLimit as String: kSecMatchLimitOne,
         ]
 
         var item: CFTypeRef?
@@ -43,11 +43,11 @@ struct KeychainHelper {
     static func updateTokenInKeychain(token: String) -> Bool {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: "openai_api_token"
+            kSecAttrAccount as String: "openai_api_token",
         ]
 
         let attributes: [String: Any] = [
-            kSecValueData as String: Data(token.utf8)
+            kSecValueData as String: Data(token.utf8),
         ]
 
         let status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)

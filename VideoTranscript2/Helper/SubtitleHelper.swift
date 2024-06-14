@@ -6,7 +6,7 @@
 //
 import Foundation
 
-struct SubtitleHelper {
+enum SubtitleHelper {
     static func loadSRT(from url: URL) async throws -> [Subtitle] {
         let (data, _) = try await URLSession.shared.data(from: url)
         guard let srtContent = String(data: data, encoding: .utf8) else {

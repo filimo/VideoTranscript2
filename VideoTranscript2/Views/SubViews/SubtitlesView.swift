@@ -1,5 +1,5 @@
 //
-//  NavigationButtons.swift
+//  SubtitlesView.swift
 //  VideoTranscript2
 //
 //  Created by Viktor Kushnerov on 22.07.23.
@@ -13,9 +13,9 @@ struct SubtitlesView: View {
     @EnvironmentObject private var subtitleStore: SubtitleStore
 
     var subtitles: [Subtitle]
-    
+
     @State private var currentTask: Task<Void, Never>? = nil
-    
+
     var body: some View {
         ScrollViewReader { scrollProxy in
             VStack {
@@ -36,42 +36,42 @@ struct SubtitlesView: View {
         }
     }
 }
- 
+
 private extension SubtitlesView {
     func onTap(subtitle: Subtitle) {
         Task {
             await audioPlayer.stop()
-    
+
             // Seek the player to the start time of the subtitle
             subtitleStore.videoPlayer.seek(startTime: subtitle.startTime)
         }
     }
-    
+
     func handleActiveIdChange(_ id: Int, scrollProxy: ScrollViewProxy) {
         let isPlaying = subtitleStore.videoPlayer.isPlaying
-            
+
         logger.info("onReceive debounceActiveId \(id)")
         scrollProxy.scrollTo(id - 4, anchor: .top)
-            
+
         currentTask?.cancel()
         currentTask = Task {
             await waitForSpeechToEnd(isPlaying: isPlaying, id: id)
         }
     }
-        
+
     func waitForSpeechToEnd(isPlaying: Bool, id: Int) async {
         logger.info("waitForSpeechToEnd: \(isPlaying) \(id)")
 
         subtitleStore.videoPlayer.isPlaying = false
 
         if Task.isCancelled { return } // Проверка на отмену задачи
-            
+
         await audioPlayer.waitForAudioToFinishPlaying()
 
         if isPlaying {
             subtitleStore.videoPlayer.isPlaying = true
         }
-            
+
         if let text = subtitleStore.translatedSubtitles.first(where: { $0.id == id })?.text {
             await speechSynthesizer.synthesizeSpeech(textToSynthesize: text)
         }
