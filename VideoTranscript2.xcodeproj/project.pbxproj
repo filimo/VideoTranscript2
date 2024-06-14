@@ -149,6 +149,7 @@
 		F01676B42C144ECE00F7F32C /* Helper */ = {
 			isa = PBXGroup;
 			children = (
+				F0CAFB222A6A781800C35B6C /* Storage.swift */,
 				F04540972C14098B00178199 /* KeychainHelper.swift */,
 				F01676B52C1454A500F7F32C /* FileHelper.swift */,
 				F01676B72C1454B600F7F32C /* SubtitleHelper.swift */,
@@ -179,7 +180,6 @@
 			children = (
 				F0A1BA4F2C19CEA200E6310F /* AudioPlayerActor.swift */,
 				F0A1BA4D2C19CADA00E6310F /* AudioCacheManager.swift */,
-				F0CAFB222A6A781800C35B6C /* Storage.swift */,
 				F0CAFB2B2A6A7A0800C35B6C /* SubtitleStore.swift */,
 				F0EFC4342C19E09500B1447A /* VideoPlayerManager.swift */,
 				F0E083672C17EB230072AE95 /* SleepPreventer.swift */,

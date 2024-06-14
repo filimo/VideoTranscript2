@@ -34,7 +34,7 @@ class VideoPlayerManagerTests: XCTestCase {
         videoPlayerManager.setPlayer(videoURL: testURL)
         videoPlayerManager.play()
         XCTAssertTrue(videoPlayerManager.isPlaying)
-        XCTAssertEqual(videoPlayerManager.player?.rate, Float(videoPlayerManager.playbackSpeed))
+        XCTAssertEqual(videoPlayerManager.player?.rate, Float(videoPlayerManager.playbackRate))
 
         videoPlayerManager.pause()
         XCTAssertFalse(videoPlayerManager.isPlaying)
@@ -64,8 +64,8 @@ class VideoPlayerManagerTests: XCTestCase {
         XCTAssertNil(videoPlayerManager.fetchURL(from: invalidBookmarkData))
     }
 
-    @MainActor func testPlaybackSpeedChange() throws {
-        videoPlayerManager.playbackSpeed = 1.5
+    @MainActor func testPlaybackRateChange() throws {
+        videoPlayerManager.playbackRate = 1.5
         videoPlayerManager.setPlayer(videoURL: testURL)
         videoPlayerManager.play()
         XCTAssertEqual(videoPlayerManager.player?.rate, 1.5)

@@ -12,7 +12,11 @@ import SwiftUI
 
 @MainActor
 class VideoPlayerManager: ObservableObject {
-    @AppStorage("playbackSpeed") var playbackSpeed: Double = 1.0
+    @AppStorage("playbackRate") var playbackRate: Double = 1.0 {
+        didSet {
+            player?.rate = Float(playbackRate)
+        }
+    }
 
     @Storage("currentTime") var currentTime: Double = 0
     @Storage("videoURLBookmark") private(set) var videoURLBookmark: Data? = nil
@@ -87,7 +91,7 @@ class VideoPlayerManager: ObservableObject {
         guard let player = player else { return }
         if player.rate == 0 {
             player.play()
-            player.rate = Float(playbackSpeed)
+            player.rate = Float(playbackRate)
             isPlaying = true
         }
     }

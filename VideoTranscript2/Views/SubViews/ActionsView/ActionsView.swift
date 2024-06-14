@@ -11,13 +11,21 @@ struct ActionsView: View {
     @EnvironmentObject private var speechSynthesizer: OpenAISpeechSynthesizerStore
     @EnvironmentObject private var subtitleStore: SubtitleStore
 
+    @State var playbackRate: Double = 1
+
     var body: some View {
         VStack {
             LoadVideoButton()
 
             NavigationButtons()
 
-            Stepper("Speed \(subtitleStore.videoPlayer.playbackSpeed, specifier: "%.2f")", value: subtitleStore.videoPlayer.$playbackSpeed, in: 0.5 ... 2.0, step: 0.05)
+            Stepper("Speed \(playbackRate, specifier: "%.2f")", value: $playbackRate, in: 0.5 ... 2.0, step: 0.05)
+                .onChange(of: playbackRate, { oldValue, newValue in
+                    subtitleStore.videoPlayer.playbackRate = newValue
+                })
+                .onAppear {
+                    playbackRate = subtitleStore.videoPlayer.playbackRate
+                }
                 .frame(maxWidth: 100)
 
             if speechSynthesizer.isCreatingSpeech {
