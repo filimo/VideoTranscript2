@@ -14,14 +14,9 @@ actor AudioCacheManager {
         openAI = OpenAI(apiToken: apiToken)
     }
 
-    func getOrGenerateAudio(for text: String) async -> URL? {
+    func generateAudio(for text: String) async -> URL? {
         do {
-            if let cacheURL = getCacheURLIfExists(for: text) {
-                return cacheURL
-            } else {
-                let cacheURL = getCacheURL(for: text)
-                return try await generateNewAudio(text: text, cacheURL: cacheURL)
-            }
+            return try await generateNewAudio(text: text, cacheURL: getCacheURL(for: text))
         } catch {
             handleNetworkError(error)
             return nil
@@ -33,18 +28,18 @@ actor AudioCacheManager {
         let fileManager = FileManager.default
 
         if fileManager.fileExists(atPath: cacheURL.path) {
-            logger.info("Cache available for text: \(text)")
+            audioLogger.info("Cache available for text: \(text)")
             return cacheURL
         }
 
-        logger.info("Cache not found for text: \(text). Checking alternative.")
+        audioLogger.info("Cache not found for text: \(text). Checking alternative.")
         let alternativeCacheURL = getCacheURL(for: text.removeUnreadableText())
         if fileManager.fileExists(atPath: alternativeCacheURL.path) {
-            logger.info("Alternative cache available for text: \(text.removeUnreadableText())")
+            audioLogger.info("Alternative cache available for text: \(text.removeUnreadableText())")
             return alternativeCacheURL
         }
 
-        logger.info("Alternative cache not found for text: \(text.removeUnreadableText())")
+        audioLogger.info("Alternative cache not found for text: \(text.removeUnreadableText())")
         return nil
     }
 
@@ -55,14 +50,14 @@ actor AudioCacheManager {
     }
 
     private func generateNewAudio(text: String, cacheURL: URL) async throws -> URL {
-        logger.info("Generating new audio for text: \(text)")
+        audioLogger.info("Generating new audio for text: \(text)")
 
         let query = AudioSpeechQuery(model: .tts_1, input: text, voice: .alloy, responseFormat: .mp3, speed: 1.1)
         let audioResult: AudioSpeechResult
         do {
             audioResult = try await openAI.audioCreateSpeech(query: query)
         } catch {
-            logger.error("Failed to create audio via OpenAI: \(error.localizedDescription)")
+            audioLogger.error("Failed to create audio via OpenAI: \(error.localizedDescription)")
             throw error
         }
 
@@ -70,11 +65,11 @@ actor AudioCacheManager {
             let audioData = audioResult.audio
             try audioData.write(to: cacheURL)
         } catch {
-            logger.error("Failed to write audio data to cache: \(error.localizedDescription)")
+            audioLogger.error("Failed to write audio data to cache: \(error.localizedDescription)")
             throw error
         }
 
-        logger.info("Successfully generated and cached audio for text: \(text)")
+        audioLogger.info("Successfully generated and cached audio for text: \(text)")
         return cacheURL
     }
 
@@ -82,18 +77,18 @@ actor AudioCacheManager {
         if let urlError = error as? URLError {
             switch urlError.code {
             case .notConnectedToInternet:
-                logger.error("No internet connection. Please check your internet settings.")
+                audioLogger.error("No internet connection. Please check your internet settings.")
             case .cannotFindHost:
-                logger.error("Cannot find host. Please check your URL.")
+                audioLogger.error("Cannot find host. Please check your URL.")
             case .timedOut:
-                logger.error("Request timed out. Please try again.")
+                audioLogger.error("Request timed out. Please try again.")
             default:
-                logger.error("An error occurred: \(urlError.localizedDescription)")
+                audioLogger.error("An error occurred: \(urlError.localizedDescription)")
             }
         } else if let openAIError = error as? OpenAIError {
-            logger.error("OpenAI error: \(openAIError.localizedDescription)")
+            audioLogger.error("OpenAI error: \(openAIError.localizedDescription)")
         } else {
-            logger.error("Error creating speech: \(error.localizedDescription)")
+            audioLogger.error("Error creating speech: \(error.localizedDescription)")
         }
     }
 }

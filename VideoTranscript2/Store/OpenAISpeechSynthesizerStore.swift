@@ -9,7 +9,6 @@ import AVFAudio
 import OpenAI
 import SwiftUI
 
-
 actor OpenAISpeechSynthesizerStore: ObservableObject {
     @MainActor @Published var isCreatingSpeech = false
 
@@ -24,14 +23,21 @@ actor OpenAISpeechSynthesizerStore: ObservableObject {
         audioCacheManager = AudioCacheManager(apiToken: apiToken)
     }
 
-    func synthesizeSpeech(textToSynthesize: String) async {
+    func synthesizeSpeech(textToSynthesize: String, isPlaying: Bool) async {
         guard !textToSynthesize.isEmpty else { return }
 
-        logger.info("Getting audio for text: \(textToSynthesize)")
-        await MainActor.run { isCreatingSpeech = true }
-        if let cacheURL = await audioCacheManager.getOrGenerateAudio(for: textToSynthesize) {
+        audioLogger.info("Getting audio for text: \(textToSynthesize)")
+
+        var cacheURL = await audioCacheManager.getCacheURLIfExists(for: textToSynthesize)
+
+        if cacheURL == nil {
+            await MainActor.run { isCreatingSpeech = true }
+            cacheURL = await audioCacheManager.generateAudio(for: textToSynthesize)
             await MainActor.run { isCreatingSpeech = false }
-            await audioPlayer.playAudio(url: cacheURL)
+        }
+
+        if let cacheURL {
+            await audioPlayer.playAudio(url: cacheURL, shouldStartPlaying: isPlaying)
         }
     }
 }

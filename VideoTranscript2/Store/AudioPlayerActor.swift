@@ -21,36 +21,36 @@ actor AudioPlayerActor {
         }
     }
 
-    func playAudio(url: URL) async {
-        logger.info("Starting to play audio from URL: \(url.absoluteString)")
+    func playAudio(url: URL, shouldStartPlaying: Bool) async {
+        audioLogger.info("Starting to play audio from URL: \(url.absoluteString)")
         do {
             player = try AVAudioPlayer(contentsOf: url)
             player?.delegate = audioPlayerDelegate
             player?.prepareToPlay()
-            play()
+            if shouldStartPlaying { play() }
         } catch {
-            logger.error("Error playing audio: \(error.localizedDescription)")
+            audioLogger.error("Error playing audio: \(error.localizedDescription)")
         }
     }
 
     func play() {
-        logger.info("Audio playback started")
+        audioLogger.info("Audio playback started")
         player?.play()
     }
 
     func stop() {
-        logger.info("Stopping audio playback")
+        audioLogger.info("Stopping audio playback")
         player?.stop()
         cancel()
     }
 
     func pause() {
-        logger.info("Pausing audio playback")
+        audioLogger.info("Pausing audio playback")
         player?.pause()
     }
 
     func replay() {
-        logger.info("Replaying audio from the beginning")
+        audioLogger.info("Replaying audio from the beginning")
         player?.currentTime = 0
         player?.play()
     }
@@ -58,13 +58,13 @@ actor AudioPlayerActor {
     /// Ожидание завершения воспроизведения аудио.
     func waitForAudioToFinishPlaying() async {
         guard player?.isPlaying == true else {
-            logger.info("Player is not playing, nothing to wait for")
+            audioLogger.info("Player is not playing, nothing to wait for")
             return
         }
 
         await withCheckedContinuation { continuation in
             self.continuation = continuation
-            logger.info("Continuation set for waiting on audio finish: \(String(describing: self.continuation))")
+            audioLogger.info("Continuation set for waiting on audio finish: \(String(describing: self.continuation))")
         }
     }
 
@@ -77,7 +77,7 @@ actor AudioPlayerActor {
     }
 
     private func cancel() {
-        logger.info("Cancelling current operation: \(String(describing: self.continuation))")
+        audioLogger.info("Cancelling current operation: \(String(describing: self.continuation))")
         continuation?.resume()
         continuation = nil
     }
@@ -87,12 +87,12 @@ class AudioPlayerDelegate: NSObject, AVAudioPlayerDelegate {
     var onFinish: (() -> Void)?
 
     func audioPlayerDidFinishPlaying(_: AVAudioPlayer, successfully flag: Bool) {
-        logger.info("Audio finished playing successfully: \(flag)")
+        audioLogger.info("Audio finished playing successfully: \(flag)")
         onFinish?()
     }
 
     func audioPlayerDecodeErrorDidOccur(_: AVAudioPlayer, error: Error?) {
-        logger.error("Audio player decode error: \(error?.localizedDescription ?? "unknown error")")
+        audioLogger.error("Audio player decode error: \(error?.localizedDescription ?? "unknown error")")
         onFinish?()
     }
 }

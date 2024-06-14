@@ -37,18 +37,18 @@ class AVPlayerObserver {
                                                   reasonForActivity,
                                                   &assertionID)
         if success == kIOReturnSuccess {
-            logger.info("Successfully prevented sleep")
+            sleepLogger.info("Successfully prevented sleep")
         } else {
-            logger.error("Failed to prevent sleep")
+            sleepLogger.error("Failed to prevent sleep")
         }
     }
 
     func allowSleep() {
         let success = IOPMAssertionRelease(assertionID)
         if success == kIOReturnSuccess {
-            logger.info("Successfully allowed sleep")
+            sleepLogger.info("Successfully allowed sleep")
         } else {
-            logger.error("Failed to allow sleep")
+            sleepLogger.error("Failed to allow sleep")
         }
     }
 }

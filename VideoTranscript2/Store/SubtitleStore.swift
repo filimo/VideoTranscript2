@@ -11,6 +11,7 @@ import Combine
 import Foundation
 import SwiftUI
 
+
 @MainActor class SubtitleStore: ObservableObject {
     let videoPlayer = VideoPlayerManager()
 
@@ -48,7 +49,7 @@ import SwiftUI
     init() {
         $activeId
             .sink { activeId in
-                logger.info("Sink activeId \(activeId)")
+                subtitlesLogger.info("Sink activeId \(activeId)")
             }
             .store(in: &cancellables)
 
@@ -131,7 +132,7 @@ private extension SubtitleStore {
         if let subtitle = originalSubtitles.first(where: {
             $0.startTime < $0.endTime ? $0.startTime ... $0.endTime ~= (currentTime + 0.2) : false
         }) {
-            logger.info("Changed activeId(\(self.activeId)) \(currentTime) \(subtitle.id) \(subtitle.text)")
+            subtitlesLogger.info("Changed activeId(\(self.activeId)) \(currentTime) \(subtitle.id) \(subtitle.text)")
             if activeId != subtitle.id {
                 activeId = subtitle.id
             }

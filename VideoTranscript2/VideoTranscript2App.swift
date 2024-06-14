@@ -8,7 +8,14 @@
 import os
 import SwiftUI
 
-let logger = Logger()
+let appLogger = Logger()
+
+let subsystem = Bundle.main.bundleIdentifier!
+let subtitlesLogger = Logger(subsystem: subsystem, category: "Subtitles")
+let videoLogger = Logger(subsystem: subsystem, category: "Video")
+let audioLogger = Logger(subsystem: subsystem, category: "Audio")
+let sleepLogger = Logger(subsystem: subsystem, category: "Sleep")
+
 
 @main
 struct VideoTranscript2App: App {
@@ -21,7 +28,7 @@ struct VideoTranscript2App: App {
                 .environmentObject(SubtitleStore())
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
                 .onAppear {
-                    logger.error("\(Bundle.main.bundlePath)")
+                    appLogger.error("\(Bundle.main.bundlePath)")
                 }
         }
     }

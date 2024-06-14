@@ -6,6 +6,7 @@
 //
 
 import Combine
+import os
 import SwiftUI
 
 struct SubtitlesView: View {
@@ -30,7 +31,7 @@ struct SubtitlesView: View {
                 }
             }
             .onChange(of: subtitleStore.activeId) { oldId, id in
-                logger.info("subtitleStore.videoPlayer.currentTime: \(oldId) \(id)")
+                subtitlesLogger.info("subtitleStore.videoPlayer.currentTime: \(oldId) \(id)")
                 handleActiveIdChange(id, scrollProxy: scrollProxy)
             }
         }
@@ -48,26 +49,33 @@ private extension SubtitlesView {
     }
 
     func handleActiveIdChange(_ id: Int, scrollProxy: ScrollViewProxy) {
-        let isPlaying = subtitleStore.videoPlayer.isPlaying
-        
+        let isVideoPlaying = subtitleStore.videoPlayer.isPlaying
 
-        logger.info("onReceive debounceActiveId \(id)")
+        // Логируем изменение активного идентификатора
+        subtitlesLogger.info("onReceive debounceActiveId \(id)")
+
+        // Прокручиваем к новому идентификатору
         scrollProxy.scrollTo(id - 4, anchor: .top)
 
-        guard isPlaying else { return }
-
+        // Отменяем текущую задачу, если она существует
         currentTask?.cancel()
         currentTask = Task {
-            await waitForSpeechToEnd(isPlaying: isPlaying, id: id)
+            if isVideoPlaying {
+                await handleSpeechCompletion(isPlaying: isVideoPlaying, id: id)
+            } else {
+                if let text = subtitleStore.translatedSubtitles.first(where: { $0.id == id })?.text {
+                    await synthesizeAndPlaySpeech(text, isPlaying: isVideoPlaying)
+                }
+            }
         }
     }
 
-    func waitForSpeechToEnd(isPlaying: Bool, id: Int) async {
-        logger.info("waitForSpeechToEnd: \(isPlaying) \(id)")
+    func handleSpeechCompletion(isPlaying: Bool, id: Int) async {
+        subtitlesLogger.info("handleSpeechCompletion: \(isPlaying) \(id)")
 
         subtitleStore.videoPlayer.isPlaying = false
 
-        if Task.isCancelled { return } // Проверка на отмену задачи
+        if Task.isCancelled { return }
 
         await speechSynthesizer.audioPlayer.waitForAudioToFinishPlaying()
 
@@ -76,7 +84,11 @@ private extension SubtitlesView {
         }
 
         if let text = subtitleStore.translatedSubtitles.first(where: { $0.id == id })?.text {
-            await speechSynthesizer.synthesizeSpeech(textToSynthesize: text)
+            await synthesizeAndPlaySpeech(text, isPlaying: isPlaying)
         }
+    }
+
+    func synthesizeAndPlaySpeech(_ text: String, isPlaying: Bool) async {
+        await speechSynthesizer.synthesizeSpeech(textToSynthesize: text, isPlaying: isPlaying)
     }
 }

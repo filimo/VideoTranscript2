@@ -38,7 +38,7 @@ struct LoadVideoButton: View {
                         if let url = await FileHelper.openFile(allowedContentTypes: [UTType.STR]) {
                             subtitleStore.originalSubtitles = try await SubtitleHelper.loadSRT(from: url)
                         } else {
-                            logger.info("User cancelled file opening")
+                            videoLogger.info("User cancelled file opening")
                         }
                     }
                 }
@@ -48,7 +48,7 @@ struct LoadVideoButton: View {
                         if let url = await FileHelper.openFile(allowedContentTypes: [UTType.STR]) {
                             subtitleStore.translatedSubtitles = try await SubtitleHelper.loadSRT(from: url)
                         } else {
-                            logger.info("User cancelled file opening")
+                            videoLogger.info("User cancelled file opening")
                         }
                     }
                 }
