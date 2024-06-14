@@ -30,14 +30,6 @@ https://docs.fastlane.tools/best-practices/source-control/#source-control
 # Fastlane.swift runner binary
 **/fastlane/FastlaneRunner
 
-### SwiftPM ###
-Packages
-.build/
-xcuserdata
-DerivedData/
-*.xcodeproj
-
-
 ### Xcode ###
 ## User settings
 xcuserdata/
