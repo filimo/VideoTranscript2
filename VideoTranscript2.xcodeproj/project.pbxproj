@@ -10,6 +10,7 @@
 		F00179812C1B5E31007B3F7E /* AudioPlayerActorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00179802C1B5E31007B3F7E /* AudioPlayerActorTests.swift */; };
 		F00179852C1BEBDD007B3F7E /* .swiftformat in Resources */ = {isa = PBXBuildFile; fileRef = F00179842C1BEBDD007B3F7E /* .swiftformat */; };
 		F00179872C1BEBF5007B3F7E /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = F00179862C1BEBF5007B3F7E /* .gitignore */; };
+		F012ADFD2C1C5E2D0061A57E /* main_1.1.png in Resources */ = {isa = PBXBuildFile; fileRef = F012ADFC2C1C5E2D0061A57E /* main_1.1.png */; };
 		F01676B62C1454A500F7F32C /* FileHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01676B52C1454A500F7F32C /* FileHelper.swift */; };
 		F01676B82C1454B600F7F32C /* SubtitleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01676B72C1454B600F7F32C /* SubtitleHelper.swift */; };
 		F01676BA2C1454D200F7F32C /* TimeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01676B92C1454D200F7F32C /* TimeHelper.swift */; };
@@ -80,6 +81,7 @@
 		F00179802C1B5E31007B3F7E /* AudioPlayerActorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayerActorTests.swift; sourceTree = "<group>"; };
 		F00179842C1BEBDD007B3F7E /* .swiftformat */ = {isa = PBXFileReference; lastKnownFileType = text; path = .swiftformat; sourceTree = "<group>"; };
 		F00179862C1BEBF5007B3F7E /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		F012ADFC2C1C5E2D0061A57E /* main_1.1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = main_1.1.png; sourceTree = "<group>"; };
 		F01676B52C1454A500F7F32C /* FileHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileHelper.swift; sourceTree = "<group>"; };
 		F01676B72C1454B600F7F32C /* SubtitleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleHelper.swift; sourceTree = "<group>"; };
 		F01676B92C1454D200F7F32C /* TimeHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeHelper.swift; sourceTree = "<group>"; };
@@ -238,6 +240,7 @@
 		F0CFC27C2A72A124002DFAAF /* assets */ = {
 			isa = PBXGroup;
 			children = (
+				F012ADFC2C1C5E2D0061A57E /* main_1.1.png */,
 				F04594EE2A918229004F182D /* main_1.0.png */,
 			);
 			path = assets;
@@ -428,6 +431,7 @@
 				F0E4EDBD2A6446CC00F39CE0 /* Preview Assets.xcassets in Resources */,
 				F0E4EDBA2A6446CC00F39CE0 /* Assets.xcassets in Resources */,
 				F00179872C1BEBF5007B3F7E /* .gitignore in Resources */,
+				F012ADFD2C1C5E2D0061A57E /* main_1.1.png in Resources */,
 				F04594EF2A918229004F182D /* main_1.0.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -660,7 +664,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = by.filimo.VideoTranscript2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -694,7 +698,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = by.filimo.VideoTranscript2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
