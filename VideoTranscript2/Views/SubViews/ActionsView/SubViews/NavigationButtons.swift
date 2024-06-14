@@ -15,7 +15,7 @@ struct NavigationButtons: View {
         GroupBox {
             Button("Previous") {
                 Task {
-                    await audioPlayer.stop()
+                    await speechSynthesizer.audioPlayer.stop()
                     subtitleStore.prevSubtitle()
                 }
             }
@@ -25,11 +25,11 @@ struct NavigationButtons: View {
                 subtitleStore.videoPlayer.isPlaying.toggle()
                 if subtitleStore.videoPlayer.isPlaying {
                     Task {
-                        await audioPlayer.play()
+                        await speechSynthesizer.audioPlayer.play()
                     }
                 } else {
                     Task {
-                        await audioPlayer.pause()
+                        await speechSynthesizer.audioPlayer.pause()
                     }
                 }
             }) {
@@ -45,7 +45,7 @@ struct NavigationButtons: View {
 
             Button("Next") {
                 Task {
-                    await audioPlayer.stop()
+                    await speechSynthesizer.audioPlayer.stop()
                     subtitleStore.nextSubtitle()
                 }
             }
@@ -58,7 +58,7 @@ struct NavigationButtons: View {
 
             Button("Repeat translate") {
                 Task {
-                    await audioPlayer.replay()
+                    await speechSynthesizer.audioPlayer.replay()
                 }
             }
             .keyboardShortcut("r", modifiers: [])

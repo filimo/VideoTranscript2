@@ -78,7 +78,7 @@ actor AudioCacheManager {
         return cacheURL
     }
 
-    func handleNetworkError(_ error: Error) {
+    private func handleNetworkError(_ error: Error) {
         if let urlError = error as? URLError {
             switch urlError.code {
             case .notConnectedToInternet:

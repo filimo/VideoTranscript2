@@ -9,10 +9,11 @@ import AVFAudio
 import OpenAI
 import SwiftUI
 
-let audioPlayer = AudioPlayerActor()
 
 actor OpenAISpeechSynthesizerStore: ObservableObject {
     @MainActor @Published var isCreatingSpeech = false
+
+    let audioPlayer = AudioPlayerActor()
 
     private let audioCacheManager: AudioCacheManager
 

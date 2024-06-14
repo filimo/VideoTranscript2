@@ -63,9 +63,10 @@ class VideoPlayerManager: ObservableObject {
 
             let interval = CMTime(value: 1, timescale: 2) // every tenth of a second
             if let player {
-                timeObserverToken = player.addPeriodicTimeObserver(forInterval: interval, queue: .global()) { _ in
+                timeObserverToken = player.addPeriodicTimeObserver(forInterval: interval, queue: .global()) { [weak self] time in
+                    guard let self = self else { return }
                     Task {
-                        await self.updateCurrentTime()
+                        await self.updateCurrentTime(time: time)
                     }
                 }
                 seekToSavedCurrentTime()
@@ -73,14 +74,10 @@ class VideoPlayerManager: ObservableObject {
         }
     }
 
-    func updateCurrentTime() {
-        if let player {
-            let currentTime = CMTimeGetSeconds(player.currentTime())
-            self.currentTime = currentTime
-            logger.info("Current time updated: \(currentTime)")
-        } else {
-            logger.info("Player is not available.")
-        }
+    func updateCurrentTime(time: CMTime) {
+        let currentTime = CMTimeGetSeconds(time)
+        self.currentTime = currentTime
+        logger.info("Current time updated: \(currentTime)")
     }
 
     func seekToSavedCurrentTime() {

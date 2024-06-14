@@ -40,7 +40,7 @@ struct SubtitlesView: View {
 private extension SubtitlesView {
     func onTap(subtitle: Subtitle) {
         Task {
-            await audioPlayer.stop()
+            await speechSynthesizer.audioPlayer.stop()
 
             // Seek the player to the start time of the subtitle
             subtitleStore.videoPlayer.seek(startTime: subtitle.startTime)
@@ -49,9 +49,12 @@ private extension SubtitlesView {
 
     func handleActiveIdChange(_ id: Int, scrollProxy: ScrollViewProxy) {
         let isPlaying = subtitleStore.videoPlayer.isPlaying
+        
 
         logger.info("onReceive debounceActiveId \(id)")
         scrollProxy.scrollTo(id - 4, anchor: .top)
+
+        guard isPlaying else { return }
 
         currentTask?.cancel()
         currentTask = Task {
@@ -66,7 +69,7 @@ private extension SubtitlesView {
 
         if Task.isCancelled { return } // Проверка на отмену задачи
 
-        await audioPlayer.waitForAudioToFinishPlaying()
+        await speechSynthesizer.audioPlayer.waitForAudioToFinishPlaying()
 
         if isPlaying {
             subtitleStore.videoPlayer.isPlaying = true

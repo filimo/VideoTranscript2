@@ -10,14 +10,6 @@ import SwiftUI
 
 let logger = Logger()
 
-actor TestActor {
-    let test = ""
-
-    private func cancel() {
-        logger.info("\(String(describing: self.test))")
-    }
-}
-
 @main
 struct VideoTranscript2App: App {
     let persistenceController = PersistenceController.shared
