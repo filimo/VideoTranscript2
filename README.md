@@ -6,6 +6,11 @@ VideoTranscript2 is an advanced multimedia application that enhances the experie
 
 ![Screenshot](./assets/main_1.1.png)
 
+Watch out the demo video below to see VideoTranscript2 in action:
+
+
+[![Demo](https://img.youtube.com/vi/21OwqjGvI-M/hqdefault.jpg)](https://www.youtube.com/watch?v=21OwqjGvI-M)
+
 ### Main Features
 
 1. **Dual Subtitles**: 

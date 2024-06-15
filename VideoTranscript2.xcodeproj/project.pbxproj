@@ -13,6 +13,7 @@
 		F012ADFD2C1C5E2D0061A57E /* main_1.1.png in Resources */ = {isa = PBXBuildFile; fileRef = F012ADFC2C1C5E2D0061A57E /* main_1.1.png */; };
 		F012ADFF2C1C64720061A57E /* APIKeyInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F012ADFE2C1C64720061A57E /* APIKeyInputView.swift */; };
 		F012AE012C1C7FFD0061A57E /* OSStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = F012AE002C1C7FFD0061A57E /* OSStatus.swift */; };
+		F012AE092C1D99DF0061A57E /* Demo.mov in Resources */ = {isa = PBXBuildFile; fileRef = F012AE082C1D99DF0061A57E /* Demo.mov */; };
 		F01676B62C1454A500F7F32C /* FileHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01676B52C1454A500F7F32C /* FileHelper.swift */; };
 		F01676B82C1454B600F7F32C /* SubtitleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01676B72C1454B600F7F32C /* SubtitleHelper.swift */; };
 		F01676BA2C1454D200F7F32C /* TimeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01676B92C1454D200F7F32C /* TimeHelper.swift */; };
@@ -86,6 +87,7 @@
 		F012ADFC2C1C5E2D0061A57E /* main_1.1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = main_1.1.png; sourceTree = "<group>"; };
 		F012ADFE2C1C64720061A57E /* APIKeyInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKeyInputView.swift; sourceTree = "<group>"; };
 		F012AE002C1C7FFD0061A57E /* OSStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSStatus.swift; sourceTree = "<group>"; };
+		F012AE082C1D99DF0061A57E /* Demo.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = Demo.mov; sourceTree = "<group>"; };
 		F01676B52C1454A500F7F32C /* FileHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileHelper.swift; sourceTree = "<group>"; };
 		F01676B72C1454B600F7F32C /* SubtitleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleHelper.swift; sourceTree = "<group>"; };
 		F01676B92C1454D200F7F32C /* TimeHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeHelper.swift; sourceTree = "<group>"; };
@@ -246,6 +248,7 @@
 		F0CFC27C2A72A124002DFAAF /* assets */ = {
 			isa = PBXGroup;
 			children = (
+				F012AE082C1D99DF0061A57E /* Demo.mov */,
 				F012ADFC2C1C5E2D0061A57E /* main_1.1.png */,
 				F04594EE2A918229004F182D /* main_1.0.png */,
 			);
@@ -437,6 +440,7 @@
 				F0E4EDBD2A6446CC00F39CE0 /* Preview Assets.xcassets in Resources */,
 				F0E4EDBA2A6446CC00F39CE0 /* Assets.xcassets in Resources */,
 				F00179872C1BEBF5007B3F7E /* .gitignore in Resources */,
+				F012AE092C1D99DF0061A57E /* Demo.mov in Resources */,
 				F012ADFD2C1C5E2D0061A57E /* main_1.1.png in Resources */,
 				F04594EF2A918229004F182D /* main_1.0.png in Resources */,
 			);
