@@ -2,7 +2,7 @@
 
 ### Overview
 
-VideoTranscript2 is an advanced multimedia application that enhances the experience of viewing and listening to audio and video content by offering dual subtitle support. This tool is particularly useful for bilingual studies, translation comparisons, and improved media navigation.
+**VideoTranscript2** is an advanced multimedia application that revolutionizes the way users view and listen to audio and video content. The app offers **dual subtitle support** and **real-time speech synthesis synchronization**, making it an indispensable tool for bilingual studies, translation comparisons, and enhanced media navigation.
 
 ![Screenshot](./assets/main_1.1.png)
 
